@@ -37,6 +37,10 @@ declare global {
                         table: 'sys_scope_privilege'
                         id: '8c4e9a6a47b1079088c685e2e16d430c'
                     }
+                    a2702a6a47f1079088c685e2e16d434e: {
+                        table: 'sys_scope_privilege'
+                        id: 'a2702a6a47f1079088c685e2e16d434e'
+                    }
                     'ac-patterns-property': {
                         table: 'sys_properties'
                         id: 'd37fecb3fd264d069162f4cdb4c189e0'
