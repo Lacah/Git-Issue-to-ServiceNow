@@ -3,7 +3,7 @@ import { gs, GlideRecord } from '@servicenow/glide';
 export function getCredentials(request: any, response: any) {
     try {
         var credentials: any[] = [];
-        var gr = new GlideRecord('sys_auth_credential');
+        var gr = new GlideRecord('discovery_credentials');
         gr.addActiveQuery();
         gr.orderBy('name');
         gr.query();

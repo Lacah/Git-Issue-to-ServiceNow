@@ -5,6 +5,14 @@ declare global {
         namespace Internal {
             interface Keys extends KeysRegistry {
                 explicit: {
+                    '3f9cd6e247b1079088c685e2e16d4349': {
+                        table: 'sys_scope_privilege'
+                        id: '3f9cd6e247b1079088c685e2e16d4349'
+                    }
+                    '7b9c1ae247b1079088c685e2e16d430c': {
+                        table: 'sys_scope_privilege'
+                        id: '7b9c1ae247b1079088c685e2e16d430c'
+                    }
                     'ac-patterns-property': {
                         table: 'sys_properties'
                         id: 'd37fecb3fd264d069162f4cdb4c189e0'

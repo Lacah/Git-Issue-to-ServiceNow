@@ -97,7 +97,7 @@ export const x_snc_git_issue_sync_history = Table({
         }),
         credential: ReferenceColumn({
             label: "Credential",
-            referenceTable: "sys_auth_credential",
+            referenceTable: "discovery_credentials",
         }),
         current_phase: StringColumn({
             label: "Current Phase",
