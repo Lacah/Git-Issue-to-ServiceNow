@@ -2,13 +2,246 @@
   <head>
     <title>Git Issue Sync</title>
     <sdk:now-ux-globals></sdk:now-ux-globals>
-    <script type="text/javascript">
-      (function(){var t;try{t=Array.from(new Set([1,2]));if(!(Array.isArray(t)&&t.length===2&&t[0]===1))throw 0}catch(e){var o=Array.from;Array.from=function(a,m,c){if(a!=null&&typeof a[Symbol.iterator]==="function"){try{var r=[],i=0,it=a[Symbol.iterator](),s;while(!(s=it.next()).done){r[i]=typeof m==="function"?m.call(c,s.value,i):s.value;i++}r.length=i;return r}catch(x){return o.call(this,a,m,c)}}return o.call(this,a,m,c)}}})();
-      if(window.Element&&Element.Methods){Element.Methods.remove=function(e){e=$(e);if(e.parentNode){e.parentNode.removeChild(e)}return e};Element.addMethods()}
-    </script>
-    <script src="main.tsx?uxpcb=$[UxFrameworkScriptables.getFlushTimestamp()]" type="module"></script>
+    <style>
+      .gis-page { max-width: 720px; margin: 0 auto; padding: 16px; font-family: "Source Sans Pro", sans-serif; color: var(--now-color-text, #2e2e2e); }
+      .gis-header { margin-bottom: 16px; }
+      .gis-header__title { font-size: 1.5rem; font-weight: 700; margin: 0; }
+      .gis-header__subtitle { margin: 4px 0 0; color: var(--now-color-text-secondary, #5b5b5b); }
+      .gis-card { background: var(--now-color-surface, #fff); border: 1px solid var(--now-color-border, #dcdcdc); border-radius: 8px; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+      .gis-field { display: flex; flex-direction: column; gap: 6px; }
+      .gis-field__label { font-weight: 600; font-size: 0.9rem; }
+      .gis-field__help { font-size: 0.8rem; color: var(--now-color-text-secondary, #5b5b5b); }
+      .gis-input { padding: 8px 10px; border: 1px solid var(--now-color-border, #dcdcdc); border-radius: 4px; font-size: 0.95rem; background: var(--now-color-surface, #fff); color: inherit; }
+      .gis-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .gis-mode { text-align: left; cursor: pointer; border: 1px solid var(--now-color-border, #dcdcdc); border-radius: 8px; padding: 12px; background: var(--now-color-surface, #fff); display: flex; flex-direction: column; gap: 4px; }
+      .gis-mode--selected { border-color: var(--now-color-interactive, #2e6df6); box-shadow: 0 0 0 1px var(--now-color-interactive, #2e6df6) inset; }
+      .gis-mode__title { font-weight: 600; }
+      .gis-mode__desc { font-size: 0.8rem; color: var(--now-color-text-secondary, #5b5b5b); }
+      .gis-radios { display: flex; gap: 16px; }
+      .gis-radio, .gis-checkbox { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+      .gis-actions { display: flex; gap: 12px; justify-content: flex-end; }
+      .gis-btn { padding: 8px 16px; border-radius: 4px; border: 1px solid var(--now-color-border, #dcdcdc); background: var(--now-color-surface, #fff); color: inherit; cursor: pointer; font-size: 0.95rem; text-decoration: none; display: inline-flex; align-items: center; }
+      .gis-btn--primary { background: var(--now-color-interactive, #2e6df6); border-color: var(--now-color-interactive, #2e6df6); color: #fff; }
+      .gis-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+      .gis-progress__phase { font-weight: 600; }
+      .gis-progress__pct { font-size: 0.85rem; color: var(--now-color-text-secondary, #5b5b5b); }
+      .gis-bar { height: 10px; background: var(--now-color-surface-secondary, #eee); border-radius: 999px; overflow: hidden; }
+      .gis-bar__fill { height: 100%; background: var(--now-color-interactive, #2e6df6); transition: width 0.4s ease; }
+      .gis-log { list-style: none; margin: 0; padding: 0; max-height: 200px; overflow-y: auto; font-size: 0.85rem; }
+      .gis-log__item { padding: 4px 0; border-bottom: 1px solid var(--now-color-border, #ececec); }
+      .gis-summary { margin: 0; display: flex; flex-direction: column; gap: 4px; }
+      .gis-summary__row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--now-color-border, #ececec); }
+      .gis-summary__row dt { margin: 0; } .gis-summary__row dd { margin: 0; font-weight: 700; }
+      .gis-alert { padding: 12px; border-radius: 4px; }
+      .gis-alert--ok { background: #e5f6ea; color: #1b5e2f; }
+      .gis-alert--warn { background: #fff4e5; color: #7a4f01; }
+      .gis-alert--error { background: #fdecea; color: #8a1c12; }
+      @media (max-width: 560px) { .gis-modes { grid-template-columns: 1fr; } }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div class="gis-page">
+      <header class="gis-header">
+        <h1 class="gis-header__title">Git Issue Sync</h1>
+        <p class="gis-header__subtitle">Synchronize GitHub issues to ServiceNow</p>
+      </header>
+      <div id="root"></div>
+    </div>
+    <script src="main.js" type="module"></script>
+    <script>
+      /* <![CDATA[ */
+      (function () {
+        var API_BASE = '/api/x_snc_git_issue/sync';
+        var GCK = window.g_ck;
+        var root = document.getElementById('root');
+        var POLL_MS = 1500;
+        var MAX_POLLS = 200;
+        var OK = ['completed', 'completed_with_errors'];
+        var syncMode = 'mirror';
+        var timer = null, polls = 0, fails = 0, lastMsg = '';
+
+        function esc(s) {
+          return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+            return c === '&' ? '&amp;' : c === '<' ? '&lt;' : c === '>' ? '&gt;' : '&quot;';
+          });
+        }
+
+        function api(path, method, bodyObj) {
+          var opts = { method: method || 'GET', headers: { 'Accept': 'application/json', 'X-UserToken': GCK } };
+          if (bodyObj) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(bodyObj); }
+          return fetch(API_BASE + path, opts).then(function (r) {
+            return r.json().catch(function () { return {}; }).then(function (j) {
+              return (j && j.result !== undefined) ? j.result : j;
+            });
+          });
+        }
+
+        function stopPolling() { if (timer !== null) { clearTimeout(timer); timer = null; } }
+
+        function highlightModes() {
+          var btns = root.querySelectorAll('.gis-mode');
+          for (var i = 0; i < btns.length; i++) {
+            if (btns[i].getAttribute('data-mode') === syncMode) { btns[i].classList.add('gis-mode--selected'); }
+            else { btns[i].classList.remove('gis-mode--selected'); }
+          }
+        }
+
+        function loadCredentials() {
+          api('/credentials', 'GET').then(function (body) {
+            if (!body || !body.success || !body.data) { return; }
+            var sel = document.getElementById('cred');
+            if (!sel) { return; }
+            for (var i = 0; i < body.data.length; i++) {
+              var c = body.data[i];
+              var opt = document.createElement('option');
+              opt.value = c.sys_id;
+              opt.textContent = c.name + ' (' + c.type + ')';
+              sel.appendChild(opt);
+            }
+          }).catch(function () {});
+        }
+
+        function renderForm() {
+          stopPolling();
+          syncMode = 'mirror';
+          root.innerHTML = ''
+            + '<div class="gis-card">'
+            + '  <label class="gis-field"><span class="gis-field__label">Repository URL</span>'
+            + '    <input id="repo" class="gis-input" type="text" placeholder="https://github.com/owner/repo" /></label>'
+            + '  <label class="gis-field"><span class="gis-field__label">Credential</span>'
+            + '    <select id="cred" class="gis-input"><option value="">None (public repo)</option></select>'
+            + '    <span class="gis-field__help">Optional for public repositories.</span></label>'
+            + '  <div class="gis-field"><span class="gis-field__label">Sync Mode</span>'
+            + '    <div class="gis-modes">'
+            + '      <button type="button" class="gis-mode" data-mode="mirror"><span class="gis-mode__title">Mirror Repository Structure</span><span class="gis-mode__desc">Issues to custom table, Milestones to custom table</span></button>'
+            + '      <button type="button" class="gis-mode" data-mode="user_story"><span class="gis-mode__title">Map to User Stories</span><span class="gis-mode__desc">Issues to Stories, Milestones to Epics</span></button>'
+            + '    </div></div>'
+            + '  <div class="gis-field"><span class="gis-field__label">Issue State Filter</span>'
+            + '    <div class="gis-radios">'
+            + '      <label class="gis-radio"><input type="radio" name="state" value="open" checked /> <span>Open</span></label>'
+            + '      <label class="gis-radio"><input type="radio" name="state" value="closed" /> <span>Closed</span></label>'
+            + '      <label class="gis-radio"><input type="radio" name="state" value="all" /> <span>All</span></label>'
+            + '    </div></div>'
+            + '  <label class="gis-checkbox"><input id="upd" type="checkbox" /> <span>Update existing records</span></label>'
+            + '  <div class="gis-actions"><button id="start" type="button" class="gis-btn gis-btn--primary" disabled>Start Sync</button></div>'
+            + '</div>';
+
+          var repo = document.getElementById('repo');
+          var startBtn = document.getElementById('start');
+          repo.addEventListener('input', function () { startBtn.disabled = repo.value.trim() === ''; });
+          var modeBtns = root.querySelectorAll('.gis-mode');
+          for (var i = 0; i < modeBtns.length; i++) {
+            modeBtns[i].addEventListener('click', function () { syncMode = this.getAttribute('data-mode'); highlightModes(); });
+          }
+          highlightModes();
+          startBtn.addEventListener('click', onStart);
+          loadCredentials();
+        }
+
+        function onStart() {
+          var repo = document.getElementById('repo').value.trim();
+          if (!repo) { return; }
+          var cred = document.getElementById('cred').value;
+          var upd = document.getElementById('upd').checked;
+          var stateEls = root.querySelectorAll('input[name="state"]');
+          var stateVal = 'open';
+          for (var i = 0; i < stateEls.length; i++) { if (stateEls[i].checked) { stateVal = stateEls[i].value; } }
+
+          polls = 0; fails = 0; lastMsg = '';
+          document.getElementById('start').disabled = true;
+
+          var payload = { repository_url: repo, credential_sys_id: cred, sync_mode: syncMode, state_filter: stateVal, update_existing: upd };
+          api('/start', 'POST', payload).then(function (body) {
+            if (!body || !body.success) { renderError((body && body.error) || 'Failed to start sync'); return; }
+            renderProgress();
+            poll(body.sync_id);
+          }).catch(function (e) { renderError('Network error: ' + e); });
+        }
+
+        function renderProgress() {
+          root.innerHTML = ''
+            + '<div class="gis-card">'
+            + '  <div id="phase" class="gis-progress__phase">Starting</div>'
+            + '  <div class="gis-bar"><div id="fill" class="gis-bar__fill" style="width:0%"></div></div>'
+            + '  <div id="pct" class="gis-progress__pct">0%</div>'
+            + '  <ul id="log" class="gis-log"></ul>'
+            + '</div>';
+        }
+
+        function poll(syncId) {
+          api('/progress/' + syncId, 'GET').then(function (body) {
+            if (!body || !body.success) { fails++; reschedule(syncId); return; }
+            fails = 0;
+            var p = body.data;
+            updateProgress(p);
+            if (OK.indexOf(p.status) !== -1) { renderResults(p); return; }
+            if (p.status === 'failed') { renderError(p.error_message || 'Sync failed'); return; }
+            polls++;
+            if (polls >= MAX_POLLS) { renderError('Sync is taking longer than expected. Check Sync History for the final result.'); return; }
+            timer = setTimeout(function () { poll(syncId); }, POLL_MS);
+          }).catch(function () { fails++; reschedule(syncId); });
+        }
+
+        function reschedule(syncId) {
+          if (fails >= 3) { renderError('Lost contact with the server while polling. Check Sync History for the final result.'); return; }
+          timer = setTimeout(function () { poll(syncId); }, POLL_MS);
+        }
+
+        function updateProgress(p) {
+          var phaseEl = document.getElementById('phase');
+          if (!phaseEl) { return; }
+          var pct = p.percent_complete || 0;
+          phaseEl.textContent = p.current_phase || 'Working';
+          document.getElementById('fill').style.width = pct + '%';
+          document.getElementById('pct').textContent = pct + '%';
+          var msg = p.progress_message || p.current_phase || '';
+          if (msg && msg !== lastMsg) {
+            lastMsg = msg;
+            var li = document.createElement('li');
+            li.className = 'gis-log__item';
+            li.textContent = msg;
+            document.getElementById('log').appendChild(li);
+          }
+        }
+
+        function renderResults(p) {
+          stopPolling();
+          var listUrl = syncMode === 'user_story' ? '/now/nav/ui/list/rm_story' : '/now/nav/ui/list/x_snc_git_issue_record';
+          var withErrors = p.status === 'completed_with_errors';
+          var rows = [
+            ['Issues created', p.issues_created], ['Issues updated', p.issues_updated], ['Issues skipped', p.issues_skipped],
+            ['Milestones created', p.milestones_created], ['Milestones updated', p.milestones_updated], ['Labels created', p.labels_created]
+          ];
+          var rowsHtml = '';
+          for (var i = 0; i < rows.length; i++) {
+            rowsHtml += '<div class="gis-summary__row"><dt>' + esc(rows[i][0]) + '</dt><dd>' + esc(rows[i][1] || 0) + '</dd></div>';
+          }
+          root.innerHTML = ''
+            + '<div class="gis-card">'
+            + '  <div class="gis-alert ' + (withErrors ? 'gis-alert--warn' : 'gis-alert--ok') + '">'
+            + (withErrors ? 'Sync completed with some errors.' : 'Sync completed successfully!') + '</div>'
+            + '  <dl class="gis-summary">' + rowsHtml + '</dl>'
+            + '  <div class="gis-actions">'
+            + '    <a class="gis-btn" href="' + listUrl + '">View list</a>'
+            + '    <button id="again" type="button" class="gis-btn gis-btn--primary">Sync another</button>'
+            + '  </div>'
+            + '</div>';
+          document.getElementById('again').addEventListener('click', renderForm);
+        }
+
+        function renderError(msg) {
+          stopPolling();
+          root.innerHTML = ''
+            + '<div class="gis-card">'
+            + '  <div class="gis-alert gis-alert--error">' + esc(msg) + '</div>'
+            + '  <div class="gis-actions"><button id="back" type="button" class="gis-btn gis-btn--primary">Back to form</button></div>'
+            + '</div>';
+          document.getElementById('back').addEventListener('click', renderForm);
+        }
+
+        renderForm();
+      })();
+      /* ]]> */
+    </script>
   </body>
 </html>
