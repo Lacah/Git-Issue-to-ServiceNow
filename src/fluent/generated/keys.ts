@@ -13,6 +13,34 @@ declare global {
                         table: 'sys_scope_privilege'
                         id: '7b9c1ae247b1079088c685e2e16d430c'
                     }
+                    '844e5a6a47b1079088c685e2e16d4395': {
+                        table: 'sys_scope_privilege'
+                        id: '844e5a6a47b1079088c685e2e16d4395'
+                    }
+                    '8c4e5a6a47b1079088c685e2e16d43fc': {
+                        table: 'sys_scope_privilege'
+                        id: '8c4e5a6a47b1079088c685e2e16d43fc'
+                    }
+                    '8c4e9a6a47b1079088c685e2e16d4300': {
+                        table: 'sys_scope_privilege'
+                        id: '8c4e9a6a47b1079088c685e2e16d4300'
+                    }
+                    '8c4e9a6a47b1079088c685e2e16d4304': {
+                        table: 'sys_scope_privilege'
+                        id: '8c4e9a6a47b1079088c685e2e16d4304'
+                    }
+                    '8c4e9a6a47b1079088c685e2e16d4308': {
+                        table: 'sys_scope_privilege'
+                        id: '8c4e9a6a47b1079088c685e2e16d4308'
+                    }
+                    '8c4e9a6a47b1079088c685e2e16d430c': {
+                        table: 'sys_scope_privilege'
+                        id: '8c4e9a6a47b1079088c685e2e16d430c'
+                    }
+                    a2702a6a47f1079088c685e2e16d434e: {
+                        table: 'sys_scope_privilege'
+                        id: 'a2702a6a47f1079088c685e2e16d434e'
+                    }
                     'ac-patterns-property': {
                         table: 'sys_properties'
                         id: 'd37fecb3fd264d069162f4cdb4c189e0'
@@ -20,6 +48,10 @@ declare global {
                     AcceptanceCriteriaParser: {
                         table: 'sys_script_include'
                         id: 'ef572cedf07a40069b2161d511a0b79d'
+                    }
+                    b73e5a6a47b1079088c685e2e16d438d: {
+                        table: 'sys_scope_privilege'
+                        id: 'b73e5a6a47b1079088c685e2e16d438d'
                     }
                     bom_json: {
                         table: 'sys_module'
