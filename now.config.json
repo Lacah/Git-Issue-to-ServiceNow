@@ -1,0 +1,8 @@
+{
+    "scope": "x_snc_git_issue",
+    "scopeId": "0ccbec9e47718f5088c685e2e16d4347",
+    "name": "Git Issue Sync",
+    "staticContentPaths": {
+        "src/client": "dist/static"
+    }
+}
