@@ -84,7 +84,7 @@ export default function SyncForm({onSubmit, loading}: SyncFormProps) {
       </div>
 
       <div className="sync-form-section">
-        <Input label="Repository URL" placeholder="https://github.com/owner/repo" required value={repoUrl} onValueSet={handleRepoChange} />
+        <Input label="Repository URL" placeholder="https://github.com/owner/repo" required value={repoUrl} manageValue onValueSet={handleRepoChange} />
       </div>
 
       <div className="sync-form-section">
@@ -104,7 +104,7 @@ export default function SyncForm({onSubmit, loading}: SyncFormProps) {
       </div>
 
       <div className="sync-form-section">
-        <Checkbox label="Update existing records" checked={updateExisting} onCheckedSet={handleUpdateChange} />
+        <Checkbox label="Update existing records" checked={updateExisting} manageChecked onCheckedSet={handleUpdateChange} />
       </div>
 
       <div className="sync-actions">

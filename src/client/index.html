@@ -6,7 +6,7 @@
       (function(){var t;try{t=Array.from(new Set([1,2]));if(!(Array.isArray(t)&&t.length===2&&t[0]===1))throw 0}catch(e){var o=Array.from;Array.from=function(a,m,c){if(a!=null&&typeof a[Symbol.iterator]==="function"){try{var r=[],i=0,it=a[Symbol.iterator](),s;while(!(s=it.next()).done){r[i]=typeof m==="function"?m.call(c,s.value,i):s.value;i++}r.length=i;return r}catch(x){return o.call(this,a,m,c)}}return o.call(this,a,m,c)}}})();
       if(window.Element&&Element.Methods){Element.Methods.remove=function(e){e=$(e);if(e.parentNode){e.parentNode.removeChild(e)}return e};Element.addMethods()}
     </script>
-    <script src="./main.tsx?uxpcb=$[UxFrameworkScriptables.getFlushTimestamp()]" type="module"></script>
+    <script src="main.tsx?uxpcb=$[UxFrameworkScriptables.getFlushTimestamp()]" type="module"></script>
   </head>
   <body>
     <div id="root"></div>
