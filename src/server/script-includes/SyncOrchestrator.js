@@ -12,22 +12,33 @@ SyncOrchestrator.prototype = {
 
     startSync: function() {
         this._createSyncHistory();
+        return this._run();
+    },
 
+    runExisting: function(syncHistorySysId) {
+        this._syncHistorySysId = syncHistorySysId;
+        var gr = new GlideRecord('x_snc_git_issue_sync_history');
+        if (gr.get(syncHistorySysId)) {
+            gr.setValue('status', 'in_progress');
+            gr.setValue('sync_start', new GlideDateTime().getDisplayValue());
+            gr.update();
+        }
+        return this._run();
+    },
+
+    _run: function() {
         try {
             this._updateProgress('Validating', 0, 1, 0, 'Validating repository access...');
             this._apiClient.getRepoInfo();
 
-            // Process milestones
             this._updateProgress('Milestones', 0, 0, 5, 'Fetching milestones...');
             var milestones = this._apiClient.getMilestones(this._config.stateFilter === 'all' ? 'all' : this._config.stateFilter);
             this._updateProgress('Milestones', 0, milestones.length, 10, 'Processing milestones...');
             this._processMilestones(milestones);
 
-            // Fetch issues
             this._updateProgress('Issues', 0, 0, 30, 'Fetching issues...');
             var issues = this._apiClient.getIssues(this._config.stateFilter === 'all' ? 'all' : this._config.stateFilter);
 
-            // Filter out pull requests (GitHub returns PRs in the issues endpoint)
             var filteredIssues = [];
             for (var i = 0; i < issues.length; i++) {
                 if (!issues[i].pull_request) {
@@ -38,7 +49,6 @@ SyncOrchestrator.prototype = {
             this._updateProgress('Issues', 0, filteredIssues.length, 35, 'Processing issues...');
             this._processIssues(filteredIssues);
 
-            // Complete
             this._completeSyncHistory('completed');
         } catch (e) {
             this._failSyncHistory(e.message || String(e));

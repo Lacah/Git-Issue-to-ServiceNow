@@ -1,6 +1,4 @@
-import { gs, GlideRecord } from '@servicenow/glide';
-// @ts-ignore - types generated at build time
-import { SyncOrchestrator } from '@servicenow/glide/x_snc_git_issue';
+import { gs, GlideRecord, GlideDateTime } from '@servicenow/glide';
 
 export function startSync(request: any, response: any) {
     try {
@@ -12,7 +10,6 @@ export function startSync(request: any, response: any) {
         var stateFilter = body.state_filter || 'open';
         var updateExisting = body.update_existing || false;
 
-        // Validate required fields
         if (!repoUrl) {
             response.setStatus(400);
             response.setBody({ success: false, error: 'repository_url is required' });
@@ -25,32 +22,28 @@ export function startSync(request: any, response: any) {
             return;
         }
 
-        // Initialize and start the sync orchestrator
-        var orchestrator = new SyncOrchestrator({
-            repoUrl: repoUrl,
-            credentialSysId: credentialSysId,
-            syncMode: syncMode,
-            stateFilter: stateFilter,
-            updateExisting: updateExisting
-        });
-
-        var result = orchestrator.startSync();
-
-        if (result.success) {
-            response.setStatus(200);
-            response.setBody({
-                success: true,
-                sync_id: result.syncId,
-                results: result.results
-            });
-        } else {
-            response.setStatus(200);
-            response.setBody({
-                success: false,
-                sync_id: result.syncId || '',
-                error: result.error
-            });
+        var gr = new GlideRecord('x_snc_git_issue_sync_history');
+        gr.initialize();
+        gr.setValue('repository_url', repoUrl);
+        gr.setValue('sync_mode', syncMode);
+        gr.setValue('state_filter', stateFilter);
+        gr.setValue('update_existing', updateExisting ? true : false);
+        gr.setValue('synced_by', gs.getUserID());
+        gr.setValue('sync_start', new GlideDateTime().getDisplayValue());
+        gr.setValue('status', 'queued');
+        if (credentialSysId) {
+            gr.setValue('credential', credentialSysId);
         }
+        var syncId = gr.insert();
+
+        if (!syncId) {
+            response.setStatus(500);
+            response.setBody({ success: false, error: 'Failed to create sync record' });
+            return;
+        }
+
+        response.setStatus(200);
+        response.setBody({ success: true, sync_id: syncId });
     } catch (e: any) {
         response.setStatus(500);
         response.setBody({ success: false, error: 'Internal server error: ' + e.message });

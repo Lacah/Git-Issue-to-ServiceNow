@@ -60,10 +60,11 @@ export const x_snc_git_issue_sync_history = Table({
             mandatory: true,
             dropdown: "dropdown_without_none",
             choices: {
-                in_progress: { label: "In Progress", sequence: 0 },
-                completed: { label: "Completed", sequence: 1 },
-                completed_with_errors: { label: "Completed with Errors", sequence: 2 },
-                failed: { label: "Failed", sequence: 3 },
+                queued: { label: "Queued", sequence: 0 },
+                in_progress: { label: "In Progress", sequence: 1 },
+                completed: { label: "Completed", sequence: 2 },
+                completed_with_errors: { label: "Completed with Errors", sequence: 3 },
+                failed: { label: "Failed", sequence: 4 },
             },
         }),
         issues_created: IntegerColumn({
