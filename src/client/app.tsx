@@ -1,138 +1,88 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Input } from "@servicenow/react-components/Input";
-import { Select } from "@servicenow/react-components/Select";
-import { RadioButtons } from "@servicenow/react-components/RadioButtons";
-import { Checkbox } from "@servicenow/react-components/Checkbox";
-import { Button } from "@servicenow/react-components/Button";
-import "./styles.css";
+import React, {useState, useCallback} from 'react';
+import './styles.css';
+import SyncForm, {SyncFormData} from './components/SyncForm';
+import SyncProgress from './components/SyncProgress';
+import SyncResults from './components/SyncResults';
 
-const BASE_URL = "/api/x_snc_git_issue/v1/sync";
+declare const window: Window & {g_ck: string};
 
-function getHeaders(): Record<string, string> {
-  return {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-    "X-UserToken": (window as any).g_ck
-  };
+type AppView = 'form' | 'progress' | 'results' | 'error';
+
+interface SyncResultsData {
+  issues_created: number;
+  issues_updated: number;
+  issues_skipped: number;
+  milestones_created: number;
+  labels_created: number;
 }
 
-interface Credential {
-  sys_id: string;
-  name: string;
-  type: string;
-}
+const API_BASE = '/api/x_snc_git_issue/v1/sync';
 
 export default function App() {
-  const [repoUrl, setRepoUrl] = useState("");
-  const [credentials, setCredentials] = useState<Credential[]>([]);
-  const [selectedCred, setSelectedCred] = useState<string | number>("");
-  const [syncMode, setSyncMode] = useState("mirror");
-  const [stateFilter, setStateFilter] = useState<string | number>("open");
-  const [updateExisting, setUpdateExisting] = useState(false);
+  const [view, setView] = useState<AppView>('form');
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [formData, setFormData] = useState<SyncFormData | null>(null);
+  const [results, setResults] = useState<SyncResultsData | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetch(`${BASE_URL}/credentials`, { headers: getHeaders() })
-      .then(res => res.json())
-      .then(json => setCredentials(json?.result?.data || []))
-      .catch(() => setCredentials([]));
-  }, []);
-
-  const credItems = credentials.map(c => ({
-    id: c.sys_id,
-    label: `${c.name} (${c.type})`
-  }));
-
-  const handleStartSync = useCallback(async () => {
-    if (!repoUrl || !selectedCred) return;
+  const handleSubmit = useCallback(async (data: SyncFormData) => {
+    setFormData(data);
     setLoading(true);
-    setMessage("");
+    setView('progress');
+    setError(null);
+
     try {
-      const res = await fetch(`${BASE_URL}/start`, {
-        method: "POST",
-        headers: getHeaders(),
-        body: JSON.stringify({
-          repository_url: repoUrl,
-          credential_sys_id: String(selectedCred),
-          sync_mode: syncMode,
-          state_filter: String(stateFilter),
-          update_existing: updateExisting
-        })
+      const resp = await fetch(`${API_BASE}/start`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-UserToken': window.g_ck
+        },
+        body: JSON.stringify(data)
       });
-      const json = await res.json();
-      const syncId = json?.result?.data?.sync_id;
-      if (syncId) {
-        setMessage("Sync started successfully! ID: " + syncId);
+      const json = await resp.json();
+      const body = json.result || json;
+
+      if (body.success) {
+        setResults(body.results);
+        setView('results');
       } else {
-        setMessage("Sync request submitted.");
+        setError(body.error || 'Sync failed');
+        setView('error');
       }
-    } catch (e: any) {
-      setMessage("Error: " + (e?.message || "Failed to start sync"));
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Network error');
+      setView('error');
     } finally {
       setLoading(false);
     }
-  }, [repoUrl, selectedCred, syncMode, stateFilter, updateExisting]);
+  }, []);
+
+  const handleViewList = useCallback(() => {
+    window.location.assign('/now/nav/ui/list/x_snc_git_issue_record');
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setView('form');
+    setResults(null);
+    setError(null);
+    setFormData(null);
+  }, []);
 
   return (
-    <div className="gis-app">
-      <div className="gis-header">
-        <h1 className="gis-header__title">Git Issue Sync</h1>
-        <p className="gis-header__subtitle">Synchronize GitHub issues to ServiceNow</p>
-      </div>
-      <div className="gis-card">
-        <div className="gis-form-section">
-          <Input
-            label="Repository URL"
-            placeholder="https://github.com/owner/repo"
-            value={repoUrl}
-            onValueSet={e => setRepoUrl(e.detail.payload.value)}
-            required
-          />
-        </div>
-        <div className="gis-form-section">
-          <Select
-            label="Credential"
-            items={credItems}
-            selectedItem={selectedCred}
-            onSelectedItemSet={e => setSelectedCred(e.detail.payload.value)}
-            required
-            search="none"
-          />
-        </div>
-        <div className="gis-form-section">
-          <RadioButtons
-            name="state-filter"
-            label="Issue State Filter"
-            layout="horizontal"
-            value={stateFilter}
-            options={[
-              { id: "open", label: "Open" },
-              { id: "closed", label: "Closed" },
-              { id: "all", label: "All" }
-            ]}
-            onValueSet={e => setStateFilter(e.detail.payload.value)}
-          />
-        </div>
-        <div className="gis-form-section">
-          <Checkbox
-            label="Update existing records"
-            checked={updateExisting}
-            onCheckedSet={e => setUpdateExisting(e.detail.payload.value)}
-            manageChecked
-          />
-        </div>
-        <div className="gis-form-actions">
-          <Button
-            label={loading ? "Syncing..." : "Start Sync"}
-            variant="primary"
-            size="md"
-            disabled={!repoUrl || !selectedCred || loading}
-            onClicked={handleStartSync}
-          />
-        </div>
-        {message && <div className="gis-message">{message}</div>}
-      </div>
+    <div className="sync-page">
+      {view === 'form' && (
+        <SyncForm onSubmit={handleSubmit} loading={loading} />
+      )}
+      {view === 'progress' && formData && (
+        <SyncProgress repositoryUrl={formData.repository_url} syncMode={formData.sync_mode} />
+      )}
+      {view === 'results' && (
+        <SyncResults success={true} results={results} error={null} onViewList={handleViewList} onReset={handleReset} />
+      )}
+      {view === 'error' && (
+        <SyncResults success={false} results={null} error={error} onViewList={handleViewList} onReset={handleReset} />
+      )}
     </div>
   );
 }
