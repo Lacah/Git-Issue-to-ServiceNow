@@ -45,6 +45,10 @@ declare global {
                         table: 'sys_module'
                         id: '6db9de5ac6724fb682503da3875cf5dc'
                     }
+                    'br-run-queued-sync': {
+                        table: 'sys_script'
+                        id: 'fc0ecf45ff9b4c7a8a1cde8bcf7080d2'
+                    }
                     'git-issue-sync-menu': {
                         table: 'sys_app_application'
                         id: '90965ae0007e4d1997e21797205d0cab'
@@ -92,6 +96,10 @@ declare global {
                     package_json: {
                         table: 'sys_module'
                         id: 'eebcf700373b4d8e95eeeda13ea0ce88'
+                    }
+                    'src_server_business-rules_run-queued-sync_ts': {
+                        table: 'sys_module'
+                        id: '5441a9b99624434684bf21d372fd6c76'
                     }
                     'src_server_rest-api_aliases_ts': {
                         table: 'sys_module'
@@ -662,6 +670,15 @@ declare global {
                         key: {
                             name: 'x_snc_git_issue_sync_history'
                             element: 'current_phase'
+                        }
+                    },
+                    {
+                        table: 'sys_choice'
+                        id: '357e4d797f06441aa60f8dd1a95c595d'
+                        key: {
+                            name: 'x_snc_git_issue_sync_history'
+                            element: 'status'
+                            value: 'queued'
                         }
                     },
                     {

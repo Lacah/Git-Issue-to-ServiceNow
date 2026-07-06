@@ -1,6 +1,6 @@
-import { gs, GlideRecord } from '@servicenow/glide';
-// @ts-ignore - types generated at build time
-import { SyncOrchestrator } from '@servicenow/glide/x_snc_git_issue';
+import { gs, GlideRecord, GlideDateTime } from '@servicenow/glide';
+
+declare const SyncOrchestrator: any;
 
 function categorizeError(message: string): { error: string; hint: string; code: string } {
     var msg = message || 'Unknown error';
@@ -67,7 +67,6 @@ export function startSync(request: any, response: any) {
         var stateFilter = body.state_filter || 'open';
         var updateExisting = body.update_existing || false;
 
-        // Validate required fields
         if (!repoUrl) {
             response.setStatus(400);
             response.setBody({ success: false, error: 'Repository URL is required.', hint: 'Enter a GitHub repository URL in the format: https://github.com/owner/repo', code: 'missing_url' });
