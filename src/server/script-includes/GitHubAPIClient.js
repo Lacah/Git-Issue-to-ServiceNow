@@ -1,11 +1,54 @@
 var GitHubAPIClient = Class.create();
 GitHubAPIClient.prototype = {
-    initialize: function(repoUrl, credentialSysId) {
+    initialize: function(repoUrl, options) {
         this._repoUrl = repoUrl;
-        this._credentialSysId = credentialSysId;
+        this._options = options || {};
         this._baseUrl = 'https://api.github.com';
+        this._token = '';
         this._parseRepoUrl(repoUrl);
-        this._loadCredential();
+        this._resolveToken();
+    },
+
+    _resolveToken: function() {
+        if (this._options.token) {
+            this._token = this._options.token;
+            return;
+        }
+        if (!this._options.credentialAlias) {
+            return;
+        }
+
+        var aliasId = this._options.credentialAlias;
+        var provider = new sn_cc.ConnectionInfoProvider();
+
+        // Strategy 1: getConnectionExtended returns ConnectionInfoValue with getCredentialAttribute
+        try {
+            var connInfo = provider.getConnectionExtended(aliasId);
+            if (connInfo) {
+                var pwd = connInfo.getCredentialAttribute('password');
+                if (pwd) { this._token = pwd; return; }
+            }
+        } catch (e1) {
+            // Strategy 1 failed, try next
+        }
+
+        // Strategy 2: getCredential might return credential object directly
+        try {
+            if (typeof provider.getCredential === 'function') {
+                var cred = provider.getCredential(aliasId);
+                if (cred && typeof cred.getAttribute === 'function') {
+                    var p = cred.getAttribute('password');
+                    if (p) { this._token = p; return; }
+                }
+            }
+        } catch (e2) {
+            // Strategy 2 failed, try next
+        }
+
+        // Strategy 3: Use RESTMessageV2 auth profile approach with alias sys_id
+        // Store alias for use in _makeRequest instead of direct token
+        this._useAliasAuth = true;
+        this._aliasSysId = aliasId;
     },
 
     _parseRepoUrl: function(url) {
@@ -17,12 +60,6 @@ GitHubAPIClient.prototype = {
         this._repo = match[2];
     },
 
-    _loadCredential: function() {
-        // Credential decryption is handled by RESTMessageV2.setAuthenticationProfile()
-        // which has privileged access. We just store the sys_id for use in requests.
-        this._token = '';
-    },
-
     _makeRequest: function(endpoint, params) {
         var url = this._baseUrl + endpoint;
 
@@ -32,8 +69,10 @@ GitHubAPIClient.prototype = {
         rm.setRequestHeader('Accept', 'application/vnd.github.v3+json');
         rm.setRequestHeader('User-Agent', 'ServiceNow-GitIssueSync');
 
-        if (this._credentialSysId) {
-            rm.setAuthenticationProfile('basic', this._credentialSysId);
+        if (this._token) {
+            rm.setRequestHeader('Authorization', 'token ' + this._token);
+        } else if (this._useAliasAuth) {
+            rm.setAuthenticationProfile('basic', this._aliasSysId);
         }
 
         if (params) {
@@ -117,8 +156,10 @@ GitHubAPIClient.prototype = {
             rm.setRequestHeader('Accept', 'application/vnd.github.v3+json');
             rm.setRequestHeader('User-Agent', 'ServiceNow-GitIssueSync');
 
-            if (this._credentialSysId) {
-                rm.setAuthenticationProfile('basic', this._credentialSysId);
+            if (this._token) {
+                rm.setRequestHeader('Authorization', 'token ' + this._token);
+            } else if (this._useAliasAuth) {
+                rm.setAuthenticationProfile('basic', this._aliasSysId);
             }
 
             for (var key in params) {

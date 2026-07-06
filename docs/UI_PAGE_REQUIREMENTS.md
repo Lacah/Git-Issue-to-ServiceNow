@@ -23,25 +23,31 @@ The UI page at `x_snc_git_issue_sync.do` **MUST** use the self-contained inline 
 
 ---
 
-## Credential Field
+## Authentication — Direct PAT Input
 
-- **Table:** `discovery_credentials` (NOT `sys_auth_credential`)
-- **UI:** Reference-style typeahead field — user types to search, picks from dropdown results
-- **REST endpoint:** `GET /api/x_snc_git_issue/sync/credentials?q=<search_term>` queries `discovery_credentials`
-- **Token extraction:** Uses `RESTMessageV2.setAuthenticationProfile('basic', credentialSysId)` which lets ServiceNow's internal privileged REST engine handle credential decryption. The app NEVER decrypts credentials directly. The following approaches do NOT work in scoped apps:
-  - ❌ `sn_cc.StandardCredentialsProvider.getCredentialAttribute()` — method does not exist
-  - ❌ `gr.getDecryptedValue('password')` — method does not exist on GlideRecord in scoped apps
-  - ❌ `gr.getElement('password').getDecryptedValue()` — getElement returns GlideRecord, not GlideElement
-  - ❌ `new GlideEncrypter().decrypt()` — SecurityException: blocked in scoped apps
-- **GitHub auth:** `setAuthenticationProfile('basic', sysId)` sends Basic Auth using the credential's username/password fields. GitHub accepts PATs as the password in Basic Auth.
-- **Display:** Shows credential name + type + username in search results
-- **On selection:** Shows a "chip" with the credential name and a clear (×) button
+- **UI:** Simple `<input type="password">` field labeled "Personal Access Token"
+- **Placeholder:** `ghp_xxxxxxxxxxxxxxxxxxxx`
+- **Help text:** "GitHub PAT with repo scope. Used for this sync only, never stored."
+- **How it works:** The token is sent directly in the POST `/start` request body as `token`. The server passes it to `GitHubAPIClient`, which sets `Authorization: token <PAT>` on each GitHub API request.
+- **Security:** The token is transmitted over HTTPS (ServiceNow enforces TLS) and is never persisted to any database table. It exists only in memory for the duration of the sync operation.
+
+### Why NOT `discovery_credentials`
+
+The `discovery_credentials` table **cannot** be used from scoped apps for the following reasons:
+
+1. ❌ `sn_cc.StandardCredentialsProvider.getCredentialAttribute()` — method does not exist
+2. ❌ `gr.getDecryptedValue('password')` — method does not exist on GlideRecord in scoped apps
+3. ❌ `gr.getElement('password').getDecryptedValue()` — getElement returns GlideRecord, not GlideElement
+4. ❌ `new GlideEncrypter().decrypt()` — SecurityException: blocked in scoped apps
+5. ❌ `GlideRecord.getValue('password')` on discovery_credentials — returns encrypted blob, not plaintext
+6. ❌ `RESTMessageV2.setAuthenticationProfile('basic', credSysId)` — expects a `sys_auth_profile_basic` record sys_id, NOT a `discovery_credentials` sys_id
+
+All 5 decryption approaches and the `setAuthenticationProfile` workaround fail with SecurityExceptions or incorrect record type errors. The direct PAT input approach is the only reliable method for scoped apps authenticating to external APIs.
 
 ---
 
 ## Error Handling
 
-- **`GitHubAPIClient._loadCredential()`** — Throws `CREDENTIAL_EMPTY` or `CREDENTIAL_ERROR` prefixed errors if a credential sys_id was provided but token extraction fails. Does NOT silently continue with empty token.
 - **`sync-start.ts`** — `categorizeError()` function maps error messages to user-friendly `{error, hint, code}` objects
 - **UI `renderError()`** — Displays structured error with icon, message, and a "Troubleshooting" hint box
 - **UI `getHintForError()`** — Client-side fallback for hint generation when errors come from polling (no server categorization available)
@@ -52,16 +58,25 @@ The UI page at `x_snc_git_issue_sync.do` **MUST** use the self-contained inline 
 
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/api/x_snc_git_issue/sync/start` | Start sync. Body: `{repository_url, credential_sys_id, sync_mode, state_filter, update_existing}` |
+| POST | `/api/x_snc_git_issue/sync/start` | Start sync. Body: `{repository_url, token, sync_mode, state_filter, update_existing}` |
 | GET | `/api/x_snc_git_issue/sync/progress/{sync_id}` | Poll sync progress |
-| GET | `/api/x_snc_git_issue/sync/credentials?q=<term>` | Search `discovery_credentials` table |
+
+### POST `/start` Payload
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `repository_url` | string | Yes | Full GitHub repo URL (e.g., `https://github.com/owner/repo`) |
+| `token` | string | No | GitHub Personal Access Token. Required for private repos, optional for public. |
+| `sync_mode` | string | No | `"mirror"` (default) or `"user_story"` |
+| `state_filter` | string | No | `"open"` (default), `"closed"`, or `"all"` |
+| `update_existing` | boolean | No | Whether to update existing records (default: `false`) |
 
 ---
 
 ## Sync Flow
 
 1. User fills form → clicks Start Sync
-2. Client POSTs to `/start` → server runs `SyncOrchestrator.startSync()` synchronously
+2. Client POSTs to `/start` with token in request body → server runs `SyncOrchestrator.startSync()` synchronously
 3. On success: returns `{success: true, sync_id}`. Client polls `/progress/{id}`.
 4. On failure: server catches exception, categorizes it, returns `{success: false, error, hint, code}`
 5. Client renders structured error view with troubleshooting guidance
@@ -76,4 +91,3 @@ The UI page at `x_snc_git_issue_sync.do` **MUST** use the self-contained inline 
 | `x_snc_git_issue_milestone` | Mirrored GitHub milestones |
 | `x_snc_git_issue_story_xref` | Cross-reference: issue ↔ story (user_story mode) |
 | `x_snc_git_issue_sync_history` | Sync operation audit trail |
-| `discovery_credentials` | Source of credentials for API auth |

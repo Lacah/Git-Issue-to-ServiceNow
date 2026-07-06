@@ -2,7 +2,7 @@ var SyncOrchestrator = Class.create();
 SyncOrchestrator.prototype = {
     initialize: function(config) {
         this._config = config;
-        this._apiClient = new x_snc_git_issue.GitHubAPIClient(config.repoUrl, config.credentialSysId);
+        this._apiClient = new x_snc_git_issue.GitHubAPIClient(config.repoUrl, { token: config.token, credentialAlias: config.credential_alias });
         this._markdownConverter = new x_snc_git_issue.MarkdownConverter();
         this._acParser = new x_snc_git_issue.AcceptanceCriteriaParser();
         this._labelManager = new x_snc_git_issue.LabelManager();
@@ -58,9 +58,7 @@ SyncOrchestrator.prototype = {
         gr.setValue('synced_by', gs.getUserID());
         gr.setValue('sync_start', new GlideDateTime().getDisplayValue());
         gr.setValue('status', 'in_progress');
-        if (this._config.credentialSysId) {
-            gr.setValue('credential', this._config.credentialSysId);
-        }
+        // Token is passed directly and never stored in the sync history record
         this._syncHistorySysId = gr.insert();
     },
 

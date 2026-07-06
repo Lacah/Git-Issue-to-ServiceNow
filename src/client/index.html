@@ -12,24 +12,7 @@
       .gis-field__label { font-weight: 600; font-size: 0.9rem; }
       .gis-field__help { font-size: 0.8rem; color: var(--now-color-text-secondary, #5b5b5b); }
       .gis-input { padding: 8px 10px; border: 1px solid var(--now-color-border, #dcdcdc); border-radius: 4px; font-size: 0.95rem; background: var(--now-color-surface, #fff); color: inherit; }
-      .gis-ref { position: relative; }
-      .gis-ref__wrap { display: flex; gap: 0; }
-      .gis-ref__input { flex: 1; border-radius: 4px 0 0 4px; border-right: none; }
-      .gis-ref__btn { padding: 8px 10px; border: 1px solid var(--now-color-border, #dcdcdc); border-radius: 0 4px 4px 0; background: var(--now-color-surface-secondary, #f5f5f5); cursor: pointer; display: flex; align-items: center; }
-      .gis-ref__btn:hover { background: var(--now-color-border, #dcdcdc); }
-      .gis-ref__clear { position: absolute; right: 42px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.1rem; color: var(--now-color-text-secondary, #5b5b5b); padding: 4px 6px; line-height: 1; }
-      .gis-ref__clear:hover { color: var(--now-color-text, #2e2e2e); }
-      .gis-ref__results { position: absolute; top: 100%; left: 0; right: 0; z-index: 100; margin-top: 2px; background: var(--now-color-surface, #fff); border: 1px solid var(--now-color-border, #dcdcdc); border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); max-height: 200px; overflow-y: auto; display: none; }
-      .gis-ref__results--open { display: block; }
-      .gis-ref__item { padding: 8px 12px; cursor: pointer; font-size: 0.875rem; border-bottom: 1px solid var(--now-color-border, #ececec); }
-      .gis-ref__item:last-child { border-bottom: none; }
-      .gis-ref__item:hover, .gis-ref__item--active { background: var(--now-color-surface-secondary, #f0f4ff); }
-      .gis-ref__item-name { font-weight: 600; }
-      .gis-ref__item-meta { font-size: 0.75rem; color: var(--now-color-text-secondary, #5b5b5b); }
-      .gis-ref__empty { padding: 12px; font-size: 0.825rem; color: var(--now-color-text-secondary, #5b5b5b); text-align: center; }
-      .gis-ref__selected { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--now-color-surface-secondary, #f5f5f5); border: 1px solid var(--now-color-border, #dcdcdc); border-radius: 4px; font-size: 0.875rem; }
-      .gis-ref__selected-name { font-weight: 600; }
-      .gis-ref__selected-type { font-size: 0.75rem; color: var(--now-color-text-secondary, #5b5b5b); }
+      .gis-input:disabled { opacity: 0.5; cursor: not-allowed; background: var(--now-color-surface-secondary, #f5f5f5); }
       .gis-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
       .gis-mode { text-align: left; cursor: pointer; border: 1px solid var(--now-color-border, #dcdcdc); border-radius: 8px; padding: 12px; background: var(--now-color-surface, #fff); display: flex; flex-direction: column; gap: 4px; }
       .gis-mode--selected { border-color: var(--now-color-interactive, #2e6df6); box-shadow: 0 0 0 1px var(--now-color-interactive, #2e6df6) inset; }
@@ -60,6 +43,26 @@
       .gis-error-detail__message { font-size: 0.875rem; line-height: 1.4; }
       .gis-error-detail__hint { font-size: 0.825rem; padding: 10px 12px; background: rgba(0,0,0,0.04); border-radius: 4px; line-height: 1.4; }
       .gis-error-detail__hint strong { display: block; margin-bottom: 4px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.3px; color: #8a1c12; }
+      .gis-ref { position: relative; }
+      .gis-ref__wrap { display: flex; gap: 0; }
+      .gis-ref__input { flex: 1; border-radius: 4px 0 0 4px; border-right: none; }
+      .gis-ref__btn { padding: 8px 10px; border: 1px solid var(--now-color-border, #dcdcdc); border-radius: 0 4px 4px 0; background: var(--now-color-surface-secondary, #f5f5f5); cursor: pointer; display: flex; align-items: center; }
+      .gis-ref__btn:hover { background: var(--now-color-border, #dcdcdc); }
+      .gis-ref__clear { position: absolute; right: 42px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.1rem; color: var(--now-color-text-secondary, #5b5b5b); padding: 4px 6px; line-height: 1; }
+      .gis-ref__clear:hover { color: var(--now-color-text, #2e2e2e); }
+      .gis-ref__results { position: absolute; top: 100%; left: 0; right: 0; z-index: 100; margin-top: 2px; background: var(--now-color-surface, #fff); border: 1px solid var(--now-color-border, #dcdcdc); border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); max-height: 200px; overflow-y: auto; display: none; }
+      .gis-ref__results--open { display: block; }
+      .gis-ref__item { padding: 8px 12px; cursor: pointer; font-size: 0.875rem; border-bottom: 1px solid var(--now-color-border, #ececec); }
+      .gis-ref__item:last-child { border-bottom: none; }
+      .gis-ref__item:hover, .gis-ref__item--active { background: var(--now-color-surface-secondary, #f0f4ff); }
+      .gis-ref__item-name { font-weight: 600; }
+      .gis-ref__item-meta { font-size: 0.75rem; color: var(--now-color-text-secondary, #5b5b5b); }
+      .gis-ref__empty { padding: 12px; font-size: 0.825rem; color: var(--now-color-text-secondary, #5b5b5b); text-align: center; }
+      .gis-ref__selected { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--now-color-surface-secondary, #f5f5f5); border: 1px solid var(--now-color-border, #dcdcdc); border-radius: 4px; font-size: 0.875rem; }
+      .gis-ref__selected-name { font-weight: 600; }
+      .gis-ref__selected-type { font-size: 0.75rem; color: var(--now-color-text-secondary, #5b5b5b); }
+      .gis-or-divider { display: flex; align-items: center; gap: 12px; margin: 4px 0; font-size: 0.8rem; color: var(--now-color-text-secondary, #5b5b5b); text-transform: uppercase; letter-spacing: 0.5px; }
+      .gis-or-divider::before, .gis-or-divider::after { content: ''; flex: 1; height: 1px; background: var(--now-color-border, #dcdcdc); }
       @media (max-width: 560px) { .gis-modes { grid-template-columns: 1fr; } }
     </style>
     <script src="main.tsx?uxpcb=$[UxFrameworkScriptables.getFlushTimestamp()]" type="module"></script>
@@ -83,6 +86,8 @@
         var OK = ['completed', 'completed_with_errors'];
         var syncMode = 'mirror';
         var timer = null, polls = 0, fails = 0, lastMsg = '';
+        var selectedAlias = null;
+        var aliasSearchTimer = null;
 
         function esc(s) {
           return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
@@ -110,132 +115,31 @@
           }
         }
 
-        var selectedCredSysId = '';
-        var selectedCredName = '';
-        var credSearchTimer = null;
-
-        function loadCredentials() {
-          // No-op on initial load; user searches via typeahead
-        }
-
-        function searchCredentials(query) {
-          var url = '/credentials' + (query ? '?q=' + encodeURIComponent(query) : '');
-          api(url, 'GET').then(function (body) {
-            if (!body || !body.success || !body.data) { renderCredResults([]); return; }
-            renderCredResults(body.data);
-          }).catch(function () { renderCredResults([]); });
-        }
-
-        function renderCredResults(items) {
-          var results = document.getElementById('cred-results');
-          if (!results) return;
-          if (items.length === 0) {
-            results.innerHTML = '<div class="gis-ref__empty">No credentials found</div>';
-            results.classList.add('gis-ref__results--open');
-            return;
-          }
-          var html = '';
-          for (var i = 0; i < items.length; i++) {
-            var c = items[i];
-            html += '<div class="gis-ref__item" data-sysid="' + esc(c.sys_id) + '" data-name="' + esc(c.name) + '" data-type="' + esc(c.type) + '">'
-              + '<div class="gis-ref__item-name">' + esc(c.name) + '</div>'
-              + '<div class="gis-ref__item-meta">' + esc(c.type || 'credential') + (c.user_name ? ' \u2014 ' + esc(c.user_name) : '') + '</div>'
-              + '</div>';
-          }
-          results.innerHTML = html;
-          results.classList.add('gis-ref__results--open');
-
-          var credItems = results.querySelectorAll('.gis-ref__item');
-          for (var j = 0; j < credItems.length; j++) {
-            credItems[j].addEventListener('click', function () {
-              selectCredential(this.getAttribute('data-sysid'), this.getAttribute('data-name'), this.getAttribute('data-type'));
-            });
-          }
-        }
-
-        function selectCredential(sysId, name, type) {
-          selectedCredSysId = sysId;
-          selectedCredName = name;
-          var container = document.getElementById('cred-container');
-          if (!container) return;
-          container.innerHTML = ''
-            + '<div class="gis-ref__selected">'
-            + '  <span class="gis-ref__selected-name">' + esc(name) + '</span>'
-            + '  <span class="gis-ref__selected-type">' + esc(type || 'credential') + '</span>'
-            + '  <button type="button" class="gis-ref__clear" title="Clear">\u00d7</button>'
-            + '</div>';
-          container.querySelector('.gis-ref__clear').addEventListener('click', clearCredential);
-        }
-
-        function clearCredential() {
-          selectedCredSysId = '';
-          selectedCredName = '';
-          var container = document.getElementById('cred-container');
-          if (!container) return;
-          container.innerHTML = ''
-            + '<div class="gis-ref__wrap">'
-            + '  <input id="cred-search" class="gis-input gis-ref__input" type="text" placeholder="Search credentials..." autocomplete="off" />'
-            + '  <button type="button" class="gis-ref__btn" title="Search">'
-            + '    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="2"/><line x1="10.5" y1="10.5" x2="15" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
-            + '  </button>'
-            + '</div>'
-            + '<div id="cred-results" class="gis-ref__results"></div>';
-          attachCredListeners();
-        }
-
-        function attachCredListeners() {
-          var searchInput = document.getElementById('cred-search');
-          if (!searchInput) return;
-          searchInput.addEventListener('input', function () {
-            var val = searchInput.value.trim();
-            if (credSearchTimer) clearTimeout(credSearchTimer);
-            if (val.length === 0) {
-              document.getElementById('cred-results').classList.remove('gis-ref__results--open');
-              return;
-            }
-            credSearchTimer = setTimeout(function () { searchCredentials(val); }, 300);
-          });
-          searchInput.addEventListener('focus', function () {
-            if (searchInput.value.trim().length > 0) {
-              searchCredentials(searchInput.value.trim());
-            }
-          });
-          var btn = searchInput.parentElement.querySelector('.gis-ref__btn');
-          if (btn) {
-            btn.addEventListener('click', function () {
-              searchCredentials(searchInput.value.trim());
-            });
-          }
-          // Close results on outside click
-          document.addEventListener('click', function (e) {
-            var refEl = document.getElementById('cred-container');
-            if (refEl && !refEl.contains(e.target)) {
-              var results = document.getElementById('cred-results');
-              if (results) results.classList.remove('gis-ref__results--open');
-            }
-          });
-        }
-
         function renderForm() {
           stopPolling();
           syncMode = 'mirror';
-          selectedCredSysId = '';
-          selectedCredName = '';
+          selectedAlias = null;
           root.innerHTML = ''
             + '<div class="gis-card">'
             + '  <label class="gis-field"><span class="gis-field__label">Repository URL</span>'
             + '    <input id="repo" class="gis-input" type="text" placeholder="https://github.com/owner/repo" /></label>'
-            + '  <div class="gis-field"><span class="gis-field__label">Credential</span>'
-            + '    <div id="cred-container" class="gis-ref">'
-            + '      <div class="gis-ref__wrap">'
-            + '        <input id="cred-search" class="gis-input gis-ref__input" type="text" placeholder="Search credentials..." autocomplete="off" />'
-            + '        <button type="button" class="gis-ref__btn" title="Search">'
-            + '          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="2"/><line x1="10.5" y1="10.5" x2="15" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+            + '  <div class="gis-field"><span class="gis-field__label">Credential Alias</span>'
+            + '    <span class="gis-field__help">Select a Credential Alias configured in Connection &amp; Credential Aliases</span>'
+            + '    <div id="alias-container" class="gis-ref">'
+            + '      <div id="alias-search-wrap" class="gis-ref__wrap">'
+            + '        <input id="alias-search" class="gis-input gis-ref__input" type="text" placeholder="Search credential aliases..." autocomplete="off" />'
+            + '        <button id="alias-search-btn" type="button" class="gis-ref__btn" title="Search">'
+            + '          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/><line x1="11" y1="11" x2="14" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
             + '        </button>'
             + '      </div>'
-            + '      <div id="cred-results" class="gis-ref__results"></div>'
+            + '      <div id="alias-results" class="gis-ref__results"></div>'
+            + '      <div id="alias-selected" style="display:none"></div>'
             + '    </div>'
-            + '    <span class="gis-field__help">Reference to discovery_credentials. Required for private repos.</span></div>'
+            + '  </div>'
+            + '  <div class="gis-or-divider">or</div>'
+            + '  <label class="gis-field"><span class="gis-field__label">Personal Access Token</span>'
+            + '    <input id="pat" class="gis-input" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" />'
+            + '    <span class="gis-field__help">GitHub PAT with repo scope. Used for this sync only, never stored.</span></label>'
             + '  <div class="gis-field"><span class="gis-field__label">Sync Mode</span>'
             + '    <div class="gis-modes">'
             + '      <button type="button" class="gis-mode" data-mode="mirror"><span class="gis-mode__title">Mirror Repository Structure</span><span class="gis-mode__desc">Issues to custom table, Milestones to custom table</span></button>'
@@ -253,20 +157,136 @@
 
           var repo = document.getElementById('repo');
           var startBtn = document.getElementById('start');
+          var patInput = document.getElementById('pat');
+          var aliasSearch = document.getElementById('alias-search');
+          var aliasSearchBtn = document.getElementById('alias-search-btn');
+          var aliasResults = document.getElementById('alias-results');
+
           repo.addEventListener('input', function () { startBtn.disabled = repo.value.trim() === ''; });
+
+          // PAT input: if user types, clear alias selection
+          patInput.addEventListener('input', function () {
+            if (patInput.value.trim()) {
+              clearAliasSelection();
+              aliasSearch.disabled = true;
+              aliasSearchBtn.disabled = true;
+            } else {
+              aliasSearch.disabled = false;
+              aliasSearchBtn.disabled = false;
+            }
+          });
+
+          // Alias search
+          aliasSearch.addEventListener('input', function () {
+            if (aliasSearchTimer) { clearTimeout(aliasSearchTimer); }
+            aliasSearchTimer = setTimeout(function () { doAliasSearch(aliasSearch.value.trim()); }, 300);
+          });
+
+          aliasSearchBtn.addEventListener('click', function () {
+            doAliasSearch(aliasSearch.value.trim());
+          });
+
+          // Close dropdown when clicking outside
+          document.addEventListener('click', function (e) {
+            if (!document.getElementById('alias-container')) return;
+            if (!document.getElementById('alias-container').contains(e.target)) {
+              aliasResults.classList.remove('gis-ref__results--open');
+            }
+          });
+
           var modeBtns = root.querySelectorAll('.gis-mode');
           for (var i = 0; i < modeBtns.length; i++) {
             modeBtns[i].addEventListener('click', function () { syncMode = this.getAttribute('data-mode'); highlightModes(); });
           }
           highlightModes();
           startBtn.addEventListener('click', onStart);
-          attachCredListeners();
+        }
+
+        function doAliasSearch(query) {
+          var aliasResults = document.getElementById('alias-results');
+          api('/aliases?q=' + encodeURIComponent(query), 'GET').then(function (body) {
+            if (!body || !body.success) {
+              aliasResults.innerHTML = '<div class="gis-ref__empty">Error searching aliases</div>';
+              aliasResults.classList.add('gis-ref__results--open');
+              return;
+            }
+            var data = body.data || [];
+            if (data.length === 0) {
+              aliasResults.innerHTML = '<div class="gis-ref__empty">No credential aliases found</div>';
+              aliasResults.classList.add('gis-ref__results--open');
+              return;
+            }
+            var html = '';
+            for (var i = 0; i < data.length; i++) {
+              html += '<div class="gis-ref__item" data-sysid="' + esc(data[i].sys_id) + '" data-name="' + esc(data[i].name) + '" data-id="' + esc(data[i].id || '') + '">';
+              html += '<div class="gis-ref__item-name">' + esc(data[i].name) + '</div>';
+              if (data[i].id) {
+                html += '<div class="gis-ref__item-meta">' + esc(data[i].id) + '</div>';
+              }
+              html += '</div>';
+            }
+            aliasResults.innerHTML = html;
+            aliasResults.classList.add('gis-ref__results--open');
+
+            // Attach click handlers to items
+            var items = aliasResults.querySelectorAll('.gis-ref__item');
+            for (var j = 0; j < items.length; j++) {
+              items[j].addEventListener('click', function () {
+                selectAlias(this.getAttribute('data-sysid'), this.getAttribute('data-name'), this.getAttribute('data-id'));
+              });
+            }
+          }).catch(function () {
+            aliasResults.innerHTML = '<div class="gis-ref__empty">Error searching aliases</div>';
+            aliasResults.classList.add('gis-ref__results--open');
+          });
+        }
+
+        function selectAlias(sysId, name, id) {
+          selectedAlias = { sys_id: sysId, name: name, id: id };
+          var aliasResults = document.getElementById('alias-results');
+          var aliasSearchWrap = document.getElementById('alias-search-wrap');
+          var aliasSelected = document.getElementById('alias-selected');
+          var patInput = document.getElementById('pat');
+
+          aliasResults.classList.remove('gis-ref__results--open');
+          aliasSearchWrap.style.display = 'none';
+          aliasSelected.style.display = 'block';
+          aliasSelected.innerHTML = ''
+            + '<div class="gis-ref__selected">'
+            + '  <div><span class="gis-ref__selected-name">' + esc(name) + '</span>'
+            + (id ? '  <span class="gis-ref__selected-type"> (' + esc(id) + ')</span>' : '')
+            + '  </div>'
+            + '  <button type="button" id="alias-clear" class="gis-ref__clear" title="Clear selection">&times;</button>'
+            + '</div>';
+
+          // Disable PAT field
+          patInput.value = '';
+          patInput.disabled = true;
+
+          document.getElementById('alias-clear').addEventListener('click', function () {
+            clearAliasSelection();
+          });
+        }
+
+        function clearAliasSelection() {
+          selectedAlias = null;
+          var aliasSearchWrap = document.getElementById('alias-search-wrap');
+          var aliasSelected = document.getElementById('alias-selected');
+          var aliasSearch = document.getElementById('alias-search');
+          var patInput = document.getElementById('pat');
+
+          if (aliasSearchWrap) { aliasSearchWrap.style.display = 'flex'; }
+          if (aliasSelected) { aliasSelected.style.display = 'none'; aliasSelected.innerHTML = ''; }
+          if (aliasSearch) { aliasSearch.value = ''; aliasSearch.disabled = false; }
+          if (patInput) { patInput.disabled = false; }
+          var aliasSearchBtn = document.getElementById('alias-search-btn');
+          if (aliasSearchBtn) { aliasSearchBtn.disabled = false; }
         }
 
         function onStart() {
           var repo = document.getElementById('repo').value.trim();
           if (!repo) { return; }
-          var cred = selectedCredSysId;
+          var token = document.getElementById('pat').value.trim();
           var upd = document.getElementById('upd').checked;
           var stateEls = root.querySelectorAll('input[name="state"]');
           var stateVal = 'open';
@@ -275,7 +295,13 @@
           polls = 0; fails = 0; lastMsg = '';
           document.getElementById('start').disabled = true;
 
-          var payload = { repository_url: repo, credential_sys_id: cred, sync_mode: syncMode, state_filter: stateVal, update_existing: upd };
+          var payload = { repository_url: repo, sync_mode: syncMode, state_filter: stateVal, update_existing: upd };
+          if (selectedAlias && selectedAlias.sys_id) {
+            payload.credential_alias = selectedAlias.sys_id;
+          } else {
+            payload.token = token;
+          }
+
           api('/start', 'POST', payload).then(function (body) {
             if (!body || !body.success) {
               renderError(body && body.error, body && body.hint, body && body.code);
@@ -334,12 +360,10 @@
 
         function getHintForError(msg) {
           if (!msg) return '';
-          if (msg.indexOf('CREDENTIAL_EMPTY') !== -1) return 'Open the credential record and confirm the Password or Token field contains your personal access token.';
-          if (msg.indexOf('CREDENTIAL_ERROR') !== -1) return 'Check that the credential record exists, is active, and accessible.';
           if (msg.indexOf('401') !== -1 || msg.indexOf('Bad credentials') !== -1) return 'Your token may be expired or revoked. Generate a new personal access token with "repo" scope.';
           if (msg.indexOf('403') !== -1) return 'Ensure your token has the "repo" scope for private repos.';
-          if (msg.indexOf('404') !== -1) return 'Double-check the URL. For private repos, ensure you selected a valid credential.';
-          if (msg.indexOf('429') !== -1) return 'Wait a few minutes and try again, or use a credential for higher rate limits.';
+          if (msg.indexOf('404') !== -1) return 'Double-check the URL. For private repos, ensure you provided a valid token.';
+          if (msg.indexOf('429') !== -1) return 'Wait a few minutes and try again, or use a token for higher rate limits.';
           return 'Check System Logs (All > System Logs) for more details.';
         }
 

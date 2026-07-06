@@ -5,27 +5,11 @@ import { SyncOrchestrator } from '@servicenow/glide/x_snc_git_issue';
 function categorizeError(message: string): { error: string; hint: string; code: string } {
     var msg = message || 'Unknown error';
 
-    // Credential-related errors (thrown by GitHubAPIClient._loadCredential)
-    if (msg.indexOf('CREDENTIAL_EMPTY') === 0) {
-        return {
-            error: msg.replace('CREDENTIAL_EMPTY: ', ''),
-            hint: 'Open the credential record and confirm the Password or Token field contains your personal access token.',
-            code: 'credential_empty'
-        };
-    }
-    if (msg.indexOf('CREDENTIAL_ERROR') === 0) {
-        return {
-            error: msg.replace('CREDENTIAL_ERROR: ', ''),
-            hint: 'Check that the credential record exists, is active, and that your user has permission to read it.',
-            code: 'credential_error'
-        };
-    }
-
     // GitHub auth errors
     if (msg.indexOf('HTTP 401') !== -1 || msg.indexOf('Bad credentials') !== -1) {
         return {
             error: 'Authentication failed — GitHub rejected the provided token.',
-            hint: 'Your token may be expired or revoked. Generate a new personal access token with "repo" scope and update the credential record.',
+            hint: 'Your token may be expired or revoked. Generate a new personal access token with "repo" scope.',
             code: 'auth_failed'
         };
     }
@@ -41,7 +25,7 @@ function categorizeError(message: string): { error: string; hint: string; code: 
     if (msg.indexOf('HTTP 404') !== -1) {
         return {
             error: 'Repository not found.',
-            hint: 'Double-check the repository URL. For private repos, ensure you selected a credential with a valid token that has access to this repository.',
+            hint: 'Double-check the repository URL. For private repos, ensure you provided a valid token that has access to this repository.',
             code: 'not_found'
         };
     }
@@ -50,7 +34,7 @@ function categorizeError(message: string): { error: string; hint: string; code: 
     if (msg.indexOf('HTTP 429') !== -1 || msg.indexOf('rate limit') !== -1) {
         return {
             error: 'GitHub API rate limit exceeded.',
-            hint: 'Wait a few minutes and try again, or use an authenticated credential to get a higher rate limit (5000 requests/hour vs 60).',
+            hint: 'Wait a few minutes and try again, or provide a personal access token to get a higher rate limit (5000 requests/hour vs 60).',
             code: 'rate_limited'
         };
     }
@@ -77,7 +61,8 @@ export function startSync(request: any, response: any) {
         var body = request.body.data;
 
         var repoUrl = body.repository_url || '';
-        var credentialSysId = body.credential_sys_id || '';
+        var token = body.token || '';
+        var credentialAlias = body.credential_alias || '';
         var syncMode = body.sync_mode || 'mirror';
         var stateFilter = body.state_filter || 'open';
         var updateExisting = body.update_existing || false;
@@ -98,7 +83,8 @@ export function startSync(request: any, response: any) {
         // Initialize and start the sync orchestrator
         var orchestrator = new SyncOrchestrator({
             repoUrl: repoUrl,
-            credentialSysId: credentialSysId,
+            token: token,
+            credential_alias: credentialAlias,
             syncMode: syncMode,
             stateFilter: stateFilter,
             updateExisting: updateExisting

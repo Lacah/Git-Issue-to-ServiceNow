@@ -2,7 +2,7 @@ import "@servicenow/sdk/global";
 import { RestApi } from "@servicenow/sdk/core";
 import { startSync } from "../../server/rest-api/sync-start";
 import { getProgress } from "../../server/rest-api/sync-progress";
-import { getCredentials } from "../../server/rest-api/credentials";
+import { searchAliases } from "../../server/rest-api/aliases";
 
 RestApi({
     $id: Now.ID['sync-api'],
@@ -31,12 +31,12 @@ RestApi({
             version: 1
         },
         {
-            $id: Now.ID['sync-credentials-route'],
-            name: 'Get Credentials',
-            path: '/credentials',
+            $id: Now.ID['sync-aliases-route'],
+            name: 'Search Aliases',
+            path: '/aliases',
             method: 'GET',
-            script: getCredentials,
-            shortDescription: 'List available credentials for authentication',
+            script: searchAliases,
+            shortDescription: 'Search credential aliases for authentication configuration',
             version: 1
         }
     ],

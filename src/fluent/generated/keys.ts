@@ -5,6 +5,26 @@ declare global {
         namespace Internal {
             interface Keys extends KeysRegistry {
                 explicit: {
+                    '012aec2f473983d088c685e2e16d433b': {
+                        table: 'sys_scope_privilege'
+                        id: '012aec2f473983d088c685e2e16d433b'
+                    }
+                    '092aec2f473983d088c685e2e16d4309': {
+                        table: 'sys_scope_privilege'
+                        id: '092aec2f473983d088c685e2e16d4309'
+                    }
+                    '492aec2f473983d088c685e2e16d430d': {
+                        table: 'sys_scope_privilege'
+                        id: '492aec2f473983d088c685e2e16d430d'
+                    }
+                    '702aa8eb47f583d088c685e2e16d43c6': {
+                        table: 'sys_scope_privilege'
+                        id: '702aa8eb47f583d088c685e2e16d43c6'
+                    }
+                    '892aec2f473983d088c685e2e16d4311': {
+                        table: 'sys_scope_privilege'
+                        id: '892aec2f473983d088c685e2e16d4311'
+                    }
                     'ac-patterns-property': {
                         table: 'sys_properties'
                         id: 'd37fecb3fd264d069162f4cdb4c189e0'
@@ -12,6 +32,10 @@ declare global {
                     AcceptanceCriteriaParser: {
                         table: 'sys_script_include'
                         id: 'ef572cedf07a40069b2161d511a0b79d'
+                    }
+                    bc2aac2f473983d088c685e2e16d43de: {
+                        table: 'sys_scope_privilege'
+                        id: 'bc2aac2f473983d088c685e2e16d43de'
                     }
                     bom_json: {
                         table: 'sys_module'
@@ -65,9 +89,14 @@ declare global {
                         table: 'sys_module'
                         id: 'eebcf700373b4d8e95eeeda13ea0ce88'
                     }
+                    'src_server_rest-api_aliases_ts': {
+                        table: 'sys_module'
+                        id: 'e7e9c09e12604883aa3e63f614b0abee'
+                    }
                     'src_server_rest-api_credentials_ts': {
                         table: 'sys_module'
                         id: '43da879e7d84490093d550e5738954a0'
+                        deleted: true
                     }
                     'src_server_rest-api_sync-progress_ts': {
                         table: 'sys_module'
@@ -97,6 +126,10 @@ declare global {
                         table: 'sys_module'
                         id: 'c0a75335c35a4fec99061d33045cf20c'
                     }
+                    'sync-aliases-route': {
+                        table: 'sys_ws_operation'
+                        id: '268301cd2cb04ffeb9525131aceb7f7d'
+                    }
                     'sync-api': {
                         table: 'sys_ws_definition'
                         id: 'ddf0cd01b98244bf87ff25d062167010'
@@ -108,6 +141,7 @@ declare global {
                     'sync-credentials-route': {
                         table: 'sys_ws_operation'
                         id: 'f59cdd86163e4fb48dee3f330d0e171e'
+                        deleted: true
                     }
                     'sync-progress-route': {
                         table: 'sys_ws_operation'
