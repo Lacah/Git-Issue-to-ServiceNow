@@ -13,21 +13,73 @@ declare global {
                         table: 'sys_scope_privilege'
                         id: '092aec2f473983d088c685e2e16d4309'
                     }
+                    '23d9fde7477dc3d088c685e2e16d4328': {
+                        table: 'sys_scope_privilege'
+                        id: '23d9fde7477dc3d088c685e2e16d4328'
+                    }
+                    '2aadfda747bdc3d088c685e2e16d43ea': {
+                        table: 'sys_scope_privilege'
+                        id: '2aadfda747bdc3d088c685e2e16d43ea'
+                    }
+                    '40acfda347bdc3d088c685e2e16d43cf': {
+                        table: 'sys_scope_privilege'
+                        id: '40acfda347bdc3d088c685e2e16d43cf'
+                    }
                     '44d5f0eb47f983d088c685e2e16d43db': {
                         table: 'sys_scope_privilege'
                         id: '44d5f0eb47f983d088c685e2e16d43db'
+                    }
+                    '46397d67477dc3d088c685e2e16d4362': {
+                        table: 'sys_scope_privilege'
+                        id: '46397d67477dc3d088c685e2e16d4362'
+                    }
+                    '4639bd67477dc3d088c685e2e16d43be': {
+                        table: 'sys_scope_privilege'
+                        id: '4639bd67477dc3d088c685e2e16d43be'
+                    }
+                    '46adbda747bdc3d088c685e2e16d43e7': {
+                        table: 'sys_scope_privilege'
+                        id: '46adbda747bdc3d088c685e2e16d43e7'
                     }
                     '492aec2f473983d088c685e2e16d430d': {
                         table: 'sys_scope_privilege'
                         id: '492aec2f473983d088c685e2e16d430d'
                     }
+                    '66ec752747bdc3d088c685e2e16d4303': {
+                        table: 'sys_ui_related_list_entry'
+                        id: '66ec752747bdc3d088c685e2e16d4303'
+                    }
+                    '67d9b12b477dc3d088c685e2e16d4317': {
+                        table: 'sys_scope_privilege'
+                        id: '67d9b12b477dc3d088c685e2e16d4317'
+                    }
                     '702aa8eb47f583d088c685e2e16d43c6': {
                         table: 'sys_scope_privilege'
                         id: '702aa8eb47f583d088c685e2e16d43c6'
                     }
+                    '84acfda347bdc3d088c685e2e16d43a9': {
+                        table: 'sys_scope_privilege'
+                        id: '84acfda347bdc3d088c685e2e16d43a9'
+                    }
                     '892aec2f473983d088c685e2e16d4311': {
                         table: 'sys_scope_privilege'
                         id: '892aec2f473983d088c685e2e16d4311'
+                    }
+                    '8cacfda347bdc3d088c685e2e16d43ca': {
+                        table: 'sys_scope_privilege'
+                        id: '8cacfda347bdc3d088c685e2e16d43ca'
+                    }
+                    '8e39fd67477dc3d088c685e2e16d4316': {
+                        table: 'sys_scope_privilege'
+                        id: '8e39fd67477dc3d088c685e2e16d4316'
+                    }
+                    '9239fd67477dc3d088c685e2e16d4359': {
+                        table: 'sys_scope_privilege'
+                        id: '9239fd67477dc3d088c685e2e16d4359'
+                    }
+                    '9eecf12747bdc3d088c685e2e16d4396': {
+                        table: 'sys_ui_related_list'
+                        id: '9eecf12747bdc3d088c685e2e16d4396'
                     }
                     'ac-patterns-property': {
                         table: 'sys_properties'
@@ -48,6 +100,18 @@ declare global {
                     'br-run-queued-sync': {
                         table: 'sys_script'
                         id: 'fc0ecf45ff9b4c7a8a1cde8bcf7080d2'
+                    }
+                    ca39fd67477dc3d088c685e2e16d4312: {
+                        table: 'sys_scope_privilege'
+                        id: 'ca39fd67477dc3d088c685e2e16d4312'
+                    }
+                    ccacfda347bdc3d088c685e2e16d43a0: {
+                        table: 'sys_scope_privilege'
+                        id: 'ccacfda347bdc3d088c685e2e16d43a0'
+                    }
+                    d239fd67477dc3d088c685e2e16d435d: {
+                        table: 'sys_scope_privilege'
+                        id: 'd239fd67477dc3d088c685e2e16d435d'
                     }
                     'git-issue-sync-menu': {
                         table: 'sys_app_application'

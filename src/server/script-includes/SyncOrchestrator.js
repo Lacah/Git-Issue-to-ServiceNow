@@ -8,6 +8,7 @@ SyncOrchestrator.prototype = {
         this._labelManager = new x_snc_git_issue.LabelManager();
         this._syncHistorySysId = '';
         this._milestoneMap = {};
+        this._epicMap = {};
     },
 
     startSync: function() {
@@ -138,6 +139,24 @@ SyncOrchestrator.prototype = {
         }
 
         this._updateSyncHistoryCounters({ milestones_created: created, milestones_updated: updated });
+
+        // In user_story mode, also create/update rm_epic records from milestones
+        if (this._config.syncMode === 'user_story') {
+            for (var j = 0; j < milestones.length; j++) {
+                var msEpic = milestones[j];
+                var epicGr = new GlideRecord('rm_epic');
+                epicGr.addQuery('short_description', msEpic.title);
+                epicGr.query();
+                if (epicGr.next()) {
+                    this._epicMap[msEpic.number] = epicGr.getUniqueValue();
+                } else {
+                    epicGr.initialize();
+                    epicGr.setValue('short_description', msEpic.title);
+                    var epicSysId = epicGr.insert();
+                    this._epicMap[msEpic.number] = epicSysId;
+                }
+            }
+        }
     },
 
     _processIssues: function(issues) {
@@ -220,13 +239,8 @@ SyncOrchestrator.prototype = {
             this._populateStoryRecord(story, issue);
 
             // Link to epic if milestone exists
-            if (issue.milestone && this._milestoneMap[issue.milestone.number]) {
-                var epicGr = new GlideRecord('rm_epic');
-                epicGr.addQuery('short_description', issue.milestone.title);
-                epicGr.query();
-                if (epicGr.next()) {
-                    story.setValue('epic', epicGr.getUniqueValue());
-                }
+            if (issue.milestone && this._epicMap[issue.milestone.number]) {
+                story.setValue('epic', this._epicMap[issue.milestone.number]);
             }
 
             var storySysId = story.insert();
@@ -270,12 +284,28 @@ SyncOrchestrator.prototype = {
 
         var parsed = this._acParser.parse(issue.body || '');
         var descHtml = this._markdownConverter.toHTML(parsed.description);
-        gr.setValue('description', descHtml);
+        gr.setValue('description', this._stripHtml(descHtml));
 
         if (parsed.acceptanceCriteria) {
             var acHtml = this._markdownConverter.toHTML(parsed.acceptanceCriteria);
             gr.setValue('acceptance_criteria', acHtml);
         }
+    },
+
+    _stripHtml: function(html) {
+        if (!html) return '';
+        // Remove HTML tags
+        var text = html.replace(/<[^>]+>/g, '');
+        // Decode common HTML entities
+        text = text.replace(/&amp;/g, '&');
+        text = text.replace(/&lt;/g, '<');
+        text = text.replace(/&gt;/g, '>');
+        text = text.replace(/&quot;/g, '"');
+        text = text.replace(/&#39;/g, "'");
+        text = text.replace(/&nbsp;/g, ' ');
+        // Collapse multiple newlines
+        text = text.replace(/\n{3,}/g, '\n\n');
+        return text.trim();
     },
 
     _completeSyncHistory: function(status) {

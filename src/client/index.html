@@ -372,7 +372,7 @@
         function renderResults(p) {
           stopPolling();
           var listUrl = syncMode === 'user_story'
-            ? '/rm_story_list.do?sysparm_clear_stack=true'
+            ? '/x_snc_git_issue_story_xref_list.do?sysparm_query=' + encodeURIComponent('repository_url=' + lastRepoUrl) + '&sysparm_clear_stack=true'
             : '/x_snc_git_issue_record_list.do?sysparm_query=' + encodeURIComponent('repository_url=' + lastRepoUrl) + '&sysparm_clear_stack=true';
           var withErrors = p.status === 'completed_with_errors';
           var rows = [
