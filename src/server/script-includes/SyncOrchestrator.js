@@ -224,6 +224,12 @@ SyncOrchestrator.prototype = {
                 var storyGr = new GlideRecord('rm_story');
                 if (storyGr.get(xref.getValue('story'))) {
                     this._populateStoryRecord(storyGr, issue);
+
+                    // Update epic link if milestone exists in the epicMap
+                    if (issue.milestone && this._epicMap[issue.milestone.number]) {
+                        storyGr.setValue('epic', this._epicMap[issue.milestone.number]);
+                    }
+
                     storyGr.update();
                     this._labelManager.processLabels(storyGr.getUniqueValue(), 'rm_story', issue.labels);
                     callback('updated');

@@ -21,6 +21,14 @@ declare global {
                         table: 'sys_scope_privilege'
                         id: '2aadfda747bdc3d088c685e2e16d43ea'
                     }
+                    '2b8d0eef47b107d088c685e2e16d43e7': {
+                        table: 'sys_scope_privilege'
+                        id: '2b8d0eef47b107d088c685e2e16d43e7'
+                    }
+                    '3b8d4eef47b107d088c685e2e16d43ba': {
+                        table: 'sys_scope_privilege'
+                        id: '3b8d4eef47b107d088c685e2e16d43ba'
+                    }
                     '40acfda347bdc3d088c685e2e16d43cf': {
                         table: 'sys_scope_privilege'
                         id: '40acfda347bdc3d088c685e2e16d43cf'
@@ -112,6 +120,10 @@ declare global {
                     d239fd67477dc3d088c685e2e16d435d: {
                         table: 'sys_scope_privilege'
                         id: 'd239fd67477dc3d088c685e2e16d435d'
+                    }
+                    fb8d4eef47b107d088c685e2e16d43be: {
+                        table: 'sys_scope_privilege'
+                        id: 'fb8d4eef47b107d088c685e2e16d43be'
                     }
                     'git-issue-sync-menu': {
                         table: 'sys_app_application'
