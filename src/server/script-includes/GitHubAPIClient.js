@@ -19,46 +19,83 @@ GitHubAPIClient.prototype = {
         }
 
         var aliasId = this._options.credentialAlias;
+        gs.info('GitIssueSync: Resolving credential for alias: ' + aliasId);
 
-        // Strategy 1: ConnectionInfoProvider for connection-type aliases
+        // Strategy 1: Use ConnectionInfoProvider.getConnectionInfo (the correct API method)
         try {
             var provider = new sn_cc.ConnectionInfoProvider();
-            var connInfo = provider.getConnectionExtended(aliasId);
+            var connInfo = provider.getConnectionInfo(aliasId);
             if (connInfo) {
                 var pwd = connInfo.getCredentialAttribute('password');
-                if (pwd) { this._token = pwd; return; }
+                if (pwd) {
+                    gs.info('GitIssueSync: Credential resolved via getConnectionInfo');
+                    this._token = String(pwd);
+                    return;
+                }
             }
         } catch (e1) {
-            // Strategy 1 failed (no sys_connection record for this alias)
+            gs.info('GitIssueSync: Strategy 1 (getConnectionInfo) failed: ' + e1.message);
         }
 
-        // Strategy 2: Direct GlideRecord lookup on the credential table via the tag field
-        // This works for credential-type aliases where credentials are bound via the tag field
+        // Strategy 2: Look up sys_connection record for this alias, find credential, retry
         try {
-            var credGr = new GlideRecord('discovery_credentials');
-            credGr.addQuery('tag', 'CONTAINS', aliasId);
-            credGr.addQuery('active', true);
-            credGr.query();
-            if (credGr.next()) {
-                var decrypted = credGr.getElement('password').getDecryptedValue();
-                if (decrypted) { this._token = decrypted; return; }
+            var connGr = new GlideRecord('sys_connection');
+            connGr.addQuery('connection_alias', aliasId);
+            connGr.addQuery('active', true);
+            connGr.query();
+            if (connGr.next()) {
+                var credRef = connGr.getValue('credential');
+                gs.info('GitIssueSync: Found connection record with credential: ' + credRef);
+                // Connection record exists but Strategy 1 failed - try direct credential lookup
+                if (credRef) {
+                    var credGr = new GlideRecord('discovery_credentials');
+                    if (credGr.get(credRef)) {
+                        // Try reading username at minimum (password2 may not be readable)
+                        var username = credGr.getValue('user_name');
+                        gs.info('GitIssueSync: Credential username: ' + username);
+                    }
+                }
+            } else {
+                gs.info('GitIssueSync: No connection record found for alias, checking tag field');
+                // Fallback: maybe this is a credential-type alias, look via tag
+                var credGr2 = new GlideRecord('discovery_credentials');
+                credGr2.addQuery('tag', 'CONTAINS', aliasId);
+                credGr2.addQuery('active', true);
+                credGr2.query();
+                if (credGr2.next()) {
+                    var credSysId = credGr2.getUniqueValue();
+                    gs.info('GitIssueSync: Found credential via tag: ' + credSysId + ', creating connection record');
+                    // Create connection record to bridge
+                    var newConn = new GlideRecord('sys_connection');
+                    newConn.initialize();
+                    newConn.setValue('name', 'GitIssueSync - Auto-created');
+                    newConn.setValue('connection_alias', aliasId);
+                    newConn.setValue('credential', credSysId);
+                    newConn.setValue('host', 'api.github.com');
+                    newConn.setValue('protocol', 'https');
+                    newConn.setValue('port', '443');
+                    newConn.setValue('active', true);
+                    var newConnId = newConn.insert();
+                    gs.info('GitIssueSync: Created connection record: ' + newConnId);
+                    // Retry Strategy 1
+                    var provider3 = new sn_cc.ConnectionInfoProvider();
+                    var connInfo3 = provider3.getConnectionInfo(aliasId);
+                    if (connInfo3) {
+                        var pwd3 = connInfo3.getCredentialAttribute('password');
+                        if (pwd3) {
+                            gs.info('GitIssueSync: Credential resolved after creating connection record');
+                            this._token = String(pwd3);
+                            return;
+                        }
+                    }
+                }
             }
         } catch (e2) {
-            // Strategy 2 failed
-        }
-
-        // Strategy 3: StandardCredentialsProvider
-        try {
-            var stdProvider = new sn_cc.StandardCredentialsProvider();
-            var credValues = stdProvider.getCredentialAttribute(aliasId, 'password');
-            if (credValues) { this._token = String(credValues); return; }
-        } catch (e3) {
-            // Strategy 3 failed
+            gs.warn('GitIssueSync: Strategy 2 failed: ' + e2.message);
         }
 
         // All strategies exhausted
-        throw new Error('Could not retrieve credentials from alias "' + aliasId + '". ' +
-            'Ensure the credential alias has a credential record configured with the GitHub token stored as the password.');
+        throw new Error('Unable to resolve credential alias. Please paste your GitHub Personal Access Token in the Token field instead of using a credential alias, or ensure the credential alias has a properly configured connection record.');
     },
 
     _parseRepoUrl: function(url) {

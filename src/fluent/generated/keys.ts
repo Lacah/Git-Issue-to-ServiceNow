@@ -167,6 +167,14 @@ declare global {
                         table: 'sys_script_include'
                         id: 'c80f6163c87043239c0ff42cdb72d624'
                     }
+                    sys_connection_create_privilege: {
+                        table: 'sys_scope_privilege'
+                        id: '61365f109d6f466795fdbd6039e75e2a'
+                    }
+                    sys_connection_read_privilege: {
+                        table: 'sys_scope_privilege'
+                        id: 'be9c03e67f3245ea8b0826c5df09cef8'
+                    }
                 }
                 composite: [
                     {

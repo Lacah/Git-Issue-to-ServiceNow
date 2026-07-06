@@ -16,7 +16,8 @@ export function searchAliases(request: any, response: any) {
             response.setBody({ success: true, data: [], message: 'sys_alias table not accessible from this scope' });
             return;
         }
-        gr.addQuery('type', 'credential');
+        var typeQuery = gr.addQuery('type', 'credential');
+        typeQuery.addOrCondition('type', 'connection');
         if (query) {
             gr.addQuery('name', 'CONTAINS', query);
         }
