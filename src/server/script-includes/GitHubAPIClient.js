@@ -19,36 +19,46 @@ GitHubAPIClient.prototype = {
         }
 
         var aliasId = this._options.credentialAlias;
-        var provider = new sn_cc.ConnectionInfoProvider();
 
-        // Strategy 1: getConnectionExtended returns ConnectionInfoValue with getCredentialAttribute
+        // Strategy 1: ConnectionInfoProvider for connection-type aliases
         try {
+            var provider = new sn_cc.ConnectionInfoProvider();
             var connInfo = provider.getConnectionExtended(aliasId);
             if (connInfo) {
                 var pwd = connInfo.getCredentialAttribute('password');
                 if (pwd) { this._token = pwd; return; }
             }
         } catch (e1) {
-            // Strategy 1 failed, try next
+            // Strategy 1 failed (no sys_connection record for this alias)
         }
 
-        // Strategy 2: getCredential might return credential object directly
+        // Strategy 2: Direct GlideRecord lookup on the credential table via the tag field
+        // This works for credential-type aliases where credentials are bound via the tag field
         try {
-            if (typeof provider.getCredential === 'function') {
-                var cred = provider.getCredential(aliasId);
-                if (cred && typeof cred.getAttribute === 'function') {
-                    var p = cred.getAttribute('password');
-                    if (p) { this._token = p; return; }
-                }
+            var credGr = new GlideRecord('discovery_credentials');
+            credGr.addQuery('tag', 'CONTAINS', aliasId);
+            credGr.addQuery('active', true);
+            credGr.query();
+            if (credGr.next()) {
+                var decrypted = credGr.getElement('password').getDecryptedValue();
+                if (decrypted) { this._token = decrypted; return; }
             }
         } catch (e2) {
-            // Strategy 2 failed, try next
+            // Strategy 2 failed
         }
 
-        // Strategy 3: Use RESTMessageV2 auth profile approach with alias sys_id
-        // Store alias for use in _makeRequest instead of direct token
-        this._useAliasAuth = true;
-        this._aliasSysId = aliasId;
+        // Strategy 3: StandardCredentialsProvider
+        try {
+            var stdProvider = new sn_cc.StandardCredentialsProvider();
+            var credValues = stdProvider.getCredentialAttribute(aliasId, 'password');
+            if (credValues) { this._token = String(credValues); return; }
+        } catch (e3) {
+            // Strategy 3 failed
+        }
+
+        // All strategies exhausted
+        throw new Error('Could not retrieve credentials from alias "' + aliasId + '". ' +
+            'Ensure the credential alias has a credential record configured with the GitHub token stored as the password.');
     },
 
     _parseRepoUrl: function(url) {
@@ -71,8 +81,6 @@ GitHubAPIClient.prototype = {
 
         if (this._token) {
             rm.setRequestHeader('Authorization', 'token ' + this._token);
-        } else if (this._useAliasAuth) {
-            rm.setAuthenticationProfile('basic', this._aliasSysId);
         }
 
         if (params) {
@@ -158,8 +166,6 @@ GitHubAPIClient.prototype = {
 
             if (this._token) {
                 rm.setRequestHeader('Authorization', 'token ' + this._token);
-            } else if (this._useAliasAuth) {
-                rm.setAuthenticationProfile('basic', this._aliasSysId);
             }
 
             for (var key in params) {

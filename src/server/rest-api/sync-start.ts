@@ -1,6 +1,6 @@
 import { gs, GlideRecord, GlideDateTime } from '@servicenow/glide';
-
-declare const SyncOrchestrator: any;
+// @ts-ignore - types generated at build time
+import { SyncOrchestrator } from '@servicenow/glide/x_snc_git_issue';
 
 function categorizeError(message: string): { error: string; hint: string; code: string } {
     var msg = message || 'Unknown error';
