@@ -2,17 +2,25 @@ import { gs, GlideRecord } from '@servicenow/glide';
 
 export function getCredentials(request: any, response: any) {
     try {
+        var searchTerm = request.queryParams.q || '';
         var credentials: any[] = [];
-        var gr = new GlideRecord('sys_auth_credential');
+        var gr = new GlideRecord('discovery_credentials');
         gr.addActiveQuery();
+
+        if (searchTerm) {
+            gr.addQuery('name', 'CONTAINS', searchTerm);
+        }
+
         gr.orderBy('name');
+        gr.setLimit(25);
         gr.query();
 
         while (gr.next()) {
             credentials.push({
                 sys_id: gr.getUniqueValue(),
                 name: gr.getDisplayValue('name'),
-                type: gr.getValue('type')
+                type: gr.getValue('type') || '',
+                user_name: gr.getValue('user_name') || ''
             });
         }
 

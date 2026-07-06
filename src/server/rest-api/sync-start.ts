@@ -2,6 +2,76 @@ import { gs, GlideRecord } from '@servicenow/glide';
 // @ts-ignore - types generated at build time
 import { SyncOrchestrator } from '@servicenow/glide/x_snc_git_issue';
 
+function categorizeError(message: string): { error: string; hint: string; code: string } {
+    var msg = message || 'Unknown error';
+
+    // Credential-related errors (thrown by GitHubAPIClient._loadCredential)
+    if (msg.indexOf('CREDENTIAL_EMPTY') === 0) {
+        return {
+            error: msg.replace('CREDENTIAL_EMPTY: ', ''),
+            hint: 'Open the credential record and confirm the Password or Token field contains your personal access token.',
+            code: 'credential_empty'
+        };
+    }
+    if (msg.indexOf('CREDENTIAL_ERROR') === 0) {
+        return {
+            error: msg.replace('CREDENTIAL_ERROR: ', ''),
+            hint: 'Check that the credential record exists, is active, and that your user has permission to read it.',
+            code: 'credential_error'
+        };
+    }
+
+    // GitHub auth errors
+    if (msg.indexOf('HTTP 401') !== -1 || msg.indexOf('Bad credentials') !== -1) {
+        return {
+            error: 'Authentication failed — GitHub rejected the provided token.',
+            hint: 'Your token may be expired or revoked. Generate a new personal access token with "repo" scope and update the credential record.',
+            code: 'auth_failed'
+        };
+    }
+    if (msg.indexOf('HTTP 403') !== -1) {
+        return {
+            error: 'Access forbidden — the token does not have sufficient permissions.',
+            hint: 'Ensure your personal access token has the "repo" scope (for private repos) or "public_repo" scope (for public repos).',
+            code: 'forbidden'
+        };
+    }
+
+    // Repo not found
+    if (msg.indexOf('HTTP 404') !== -1) {
+        return {
+            error: 'Repository not found.',
+            hint: 'Double-check the repository URL. For private repos, ensure you selected a credential with a valid token that has access to this repository.',
+            code: 'not_found'
+        };
+    }
+
+    // Rate limiting
+    if (msg.indexOf('HTTP 429') !== -1 || msg.indexOf('rate limit') !== -1) {
+        return {
+            error: 'GitHub API rate limit exceeded.',
+            hint: 'Wait a few minutes and try again, or use an authenticated credential to get a higher rate limit (5000 requests/hour vs 60).',
+            code: 'rate_limited'
+        };
+    }
+
+    // Invalid repo URL
+    if (msg.indexOf('Invalid GitHub repository URL') !== -1) {
+        return {
+            error: msg,
+            hint: 'Use the full URL format: https://github.com/owner/repo',
+            code: 'invalid_url'
+        };
+    }
+
+    // Generic fallback
+    return {
+        error: msg,
+        hint: 'Check System Logs for additional details.',
+        code: 'unknown'
+    };
+}
+
 export function startSync(request: any, response: any) {
     try {
         var body = request.body.data;
@@ -15,13 +85,13 @@ export function startSync(request: any, response: any) {
         // Validate required fields
         if (!repoUrl) {
             response.setStatus(400);
-            response.setBody({ success: false, error: 'repository_url is required' });
+            response.setBody({ success: false, error: 'Repository URL is required.', hint: 'Enter a GitHub repository URL in the format: https://github.com/owner/repo', code: 'missing_url' });
             return;
         }
 
         if (syncMode !== 'mirror' && syncMode !== 'user_story') {
             response.setStatus(400);
-            response.setBody({ success: false, error: 'sync_mode must be "mirror" or "user_story"' });
+            response.setBody({ success: false, error: 'Invalid sync mode.', hint: 'sync_mode must be "mirror" or "user_story"', code: 'invalid_mode' });
             return;
         }
 
@@ -34,25 +104,22 @@ export function startSync(request: any, response: any) {
             updateExisting: updateExisting
         });
 
-        var result = orchestrator.startSync();
+        var syncId = orchestrator.startSync();
 
-        if (result.success) {
-            response.setStatus(200);
-            response.setBody({
-                success: true,
-                sync_id: result.syncId,
-                results: result.results
-            });
-        } else {
-            response.setStatus(200);
-            response.setBody({
-                success: false,
-                sync_id: result.syncId || '',
-                error: result.error
-            });
-        }
+        response.setStatus(200);
+        response.setBody({
+            success: true,
+            sync_id: syncId
+        });
     } catch (e: any) {
-        response.setStatus(500);
-        response.setBody({ success: false, error: 'Internal server error: ' + e.message });
+        var categorized = categorizeError(e.message || String(e));
+        gs.error('GitIssueSync: Sync failed — ' + categorized.error);
+        response.setStatus(200);
+        response.setBody({
+            success: false,
+            error: categorized.error,
+            hint: categorized.hint,
+            code: categorized.code
+        });
     }
 }

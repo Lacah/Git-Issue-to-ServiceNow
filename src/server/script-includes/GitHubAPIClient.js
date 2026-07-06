@@ -18,17 +18,9 @@ GitHubAPIClient.prototype = {
     },
 
     _loadCredential: function() {
+        // Credential decryption is handled by RESTMessageV2.setAuthenticationProfile()
+        // which has privileged access. We just store the sys_id for use in requests.
         this._token = '';
-        if (!this._credentialSysId) return;
-
-        var credGr = new GlideRecord('sys_auth_credential');
-        if (credGr.get(this._credentialSysId)) {
-            var provider = new sn_cc.StandardCredentialsProvider();
-            var credential = provider.getCredentialByID(this._credentialSysId);
-            if (credential) {
-                this._token = credential.getAttribute('password') || credential.getAttribute('token') || '';
-            }
-        }
     },
 
     _makeRequest: function(endpoint, params) {
@@ -40,8 +32,8 @@ GitHubAPIClient.prototype = {
         rm.setRequestHeader('Accept', 'application/vnd.github.v3+json');
         rm.setRequestHeader('User-Agent', 'ServiceNow-GitIssueSync');
 
-        if (this._token) {
-            rm.setRequestHeader('Authorization', 'token ' + this._token);
+        if (this._credentialSysId) {
+            rm.setAuthenticationProfile('basic', this._credentialSysId);
         }
 
         if (params) {
@@ -125,8 +117,8 @@ GitHubAPIClient.prototype = {
             rm.setRequestHeader('Accept', 'application/vnd.github.v3+json');
             rm.setRequestHeader('User-Agent', 'ServiceNow-GitIssueSync');
 
-            if (this._token) {
-                rm.setRequestHeader('Authorization', 'token ' + this._token);
+            if (this._credentialSysId) {
+                rm.setAuthenticationProfile('basic', this._credentialSysId);
             }
 
             for (var key in params) {

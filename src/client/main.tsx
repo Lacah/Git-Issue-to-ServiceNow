@@ -1,9 +1,3 @@
-import React from 'react';
-import {createRoot} from 'react-dom/client';
-import App from './app';
-
-const container = document.getElementById('root');
-if (container) {
-  const root = createRoot(container);
-  root.render(<App />);
-}
+// No-op entry point. All UI functionality is inline in index.html (CDATA script).
+// This file exists solely to satisfy the build system's entry-point requirement.
+export {};

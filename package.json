@@ -13,7 +13,6 @@
         "types": "now-sdk dependencies"
     },
     "dependencies": {
-        "marked": "9.1.6",
         "react": "18.2.0",
         "react-dom": "18.2.0",
         "@servicenow/react-components": "^0.1.0"
